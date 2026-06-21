@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# mavis CU screenshots (debug 调试截屏)
+
+# flutter_test golden failure diffs (运行时生成，不入库)
+test/failures/
+.cu-screenshots/

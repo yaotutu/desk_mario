@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../features/parallax/widgets/ground_layer.dart';
-import '../../features/parallax/widgets/parallax_background.dart';
+import '../../features/character/widgets/mario_widget.dart';
+import '../widgets/scrolling_world.dart';
 
 /// 主页装配点
 ///
-/// 当前层级：
-/// - Layer 1：[ParallaxBackground] 视差远景（云 + 远山 + 草坡，120s 一周期）
-/// - Layer 2：[GroundLayer] 地面砖块（贴底，单 tile 横向 repeat）
-/// 后续 Step 2-5 会在此基础上叠加 Mario / HUD / 通知 / Debug。
+/// 当前层级（Step 2+）：
+/// - ScrollingWorld（Layer 1 + Layer 2 合并）：视差背景 + 地面砖块，
+///   共享滚动 controller + 共享基础尺寸（panelWidth / tileWidth / groundHeight），
+///   缩放和滚动天然协调。
+/// - PositionedMario（Layer 3）：Mario 主角，独立原地跑步 + 上下浮动，不参与横向滚动。
+/// 后续 Step 3-5 会叠加 HUD / 通知 / Debug。
 class LayeredScaffold extends StatelessWidget {
   const LayeredScaffold({super.key});
 
@@ -17,10 +19,8 @@ class LayeredScaffold extends StatelessWidget {
     return const Scaffold(
       body: Stack(
         children: [
-          // Layer 1：远景视差（最底）
-          ParallaxBackground(),
-          // Layer 2：地面砖块（贴在远景之上、底部对齐）
-          Positioned.fill(child: GroundLayer()),
+          ScrollingWorld(),
+          PositionedMario(),
         ],
       ),
     );
