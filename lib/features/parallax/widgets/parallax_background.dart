@@ -10,12 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///   避免拉伸到全屏时屏幕顶部出现突兀的实色横条。
 /// - `BoxFit.fill` 强制拉伸到全屏（1280×720），横向 1.67×、纵向 3.46×。
 ///   失真可控 —— 8-bit 像素艺术拉伸反而强化了复古感。
-/// - 水平方向：2 张 panel 1 横向拼接 + 按 [progress] 平移，30s 一周期循环滚动。
+/// - 水平方向：2 张 panel 1 横向拼接 + 按 [progress] 平移，120s 一周期循环滚动。
+///   慢速滚动缓解 sprite 资源云种类有限带来的"视觉重复感"。
 /// - 没有 CustomPaint / 没有重复叠放，100% sprite-resource 真实素材。
 class ParallaxBackground extends ConsumerStatefulWidget {
   const ParallaxBackground({super.key});
 
-  /// 远景滚动速度（30s 一周期）。
+  /// 远景滚动速度倍率：与 [AnimationController.duration] 相除得到实际周期。
+  /// duration=60s × speed=0.5 → 实际 120s 一周期。
   static const double speed = 0.5;
 
   @override
@@ -32,7 +34,7 @@ class _ParallaxBackgroundState extends ConsumerState<ParallaxBackground>
     super.initState();
     _ctrl = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 30),
+      duration: const Duration(seconds: 60), // 60s × speed 0.5 = 120s 一周期
     )..repeat();
   }
 
