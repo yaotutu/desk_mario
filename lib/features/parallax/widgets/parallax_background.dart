@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'ground_layer.dart';
+
 /// 视差滚动背景（Layer 1：世界远景）
 ///
 /// 方案：sprite-resource SMB1 NES Overworld "Background 1 (Mountains) panel 1" 真实素材。
@@ -85,9 +87,10 @@ class _BackgroundLayer extends StatelessWidget {
         final screenWidth = constraints.maxWidth;
         final screenHeight = constraints.maxHeight;
 
-        // panel 1 等比渲染：高度 = 屏高，宽度 = 屏高 × 原图比例
-        final panelWidth = screenHeight * ParallaxBackground.imageAspect;
-        final panelHeight = screenHeight;
+        // panel 1 等比渲染：高度 = (屏高 - 地面高)，宽度按原图比例算出。
+        // 底部预留 [GroundLayer.groundRatio] 高度给地面层，避免山脚被地面压住。
+        final panelHeight = screenHeight * (1 - GroundLayer.groundRatio);
+        final panelWidth = panelHeight * ParallaxBackground.imageAspect;
 
         // panel 1 水平居中起始位置
         final centerLeft = (screenWidth - panelWidth) / 2;
