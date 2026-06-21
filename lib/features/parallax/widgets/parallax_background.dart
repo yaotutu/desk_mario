@@ -8,10 +8,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 实现要点：
 /// - 真实 panel 1 = 768×240（sprite-resource "Background 1 (Mountains)" sheet 第 1 行 panel），
 ///   原图 1 行云（4 朵小云均匀分布）+ 1 行远山/草地，比例 3.2:1。
-/// - 已裁掉 panel 1 上下透明棋盘格天空 → 实际内容图 = 768×180，比例 4.267:1，
-///   渲染时 panel 1 完全覆盖垂直方向，无上下空白横条。
-/// - **窗口自适应**：以窗口高度 H 为基准，等比计算 panel 1 渲染宽度 W = H × 4.267，
-///   panel 1 渲染尺寸 (W, H) 始终保持原图比例 4.267:1，避免山的轮廓变形。
+/// - 已裁切 sheet 上方的调色板标签(y=0..34) 和下方的"底部 horizon" (y=216..239)，
+///   实际内容图 = 768×176，比例 4.364:1（顶部保留 4 行 horizon NES 视觉边框）。
+/// - **窗口自适应**：以窗口高度 H 为基准，等比计算 panel 1 渲染宽度 W = H × 4.364，
+///   panel 1 渲染尺寸 (W, H) 始终保持原图比例，避免山的轮廓变形。
 /// - panel 1 居中显示：宽度不足时左右透出 skyTop（外层 Scaffold 提供）。
 /// - 水平方向：2 张 panel 1 横向拼接 + 按 [progress] 平移，120s 一周期循环滚动。
 ///   慢速滚动缓解 sprite 资源云种类有限带来的"视觉重复感"。
@@ -23,8 +23,8 @@ class ParallaxBackground extends ConsumerStatefulWidget {
   /// duration=60s × speed=0.5 → 实际 120s 一周期。
   static const double speed = 0.5;
 
-  /// panel 1 原图比例 768:180（已裁掉上下棋盘格天空，仅保留 1 行云 + 1 行山内容）。
-  static const double imageAspect = 768 / 180; // ≈ 4.267
+  /// panel 1 原图比例 768:176（已裁掉 sheet 上方调色板标签 + 底部 horizon 边框）。
+  static const double imageAspect = 768 / 176; // ≈ 4.364
 
   @override
   ConsumerState<ParallaxBackground> createState() =>
