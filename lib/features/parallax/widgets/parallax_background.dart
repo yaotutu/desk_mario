@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 视差滚动背景（Layer 1：世界远景）
 ///
-/// 方案：sprite-resource SMB1 NES Overworld "Background 1 panel 1" 真实素材。
+/// 方案：sprite-resource SMB1 NES Overworld "Background 1 (Mountains) panel 1" 真实素材。
 ///
 /// 实现要点：
-/// - 素材已经预处理：去掉原图 y=0..32 的"地平线紫横条"（用主天空纹理覆盖），
-///   避免拉伸到全屏时屏幕顶部出现突兀的实色横条。
-/// - **窗口自适应**：以窗口高度 H 为基准，等比计算 panel 1 渲染宽度 W = H × 3.69，
-///   panel 1 渲染尺寸 (W, H) 始终保持原图比例 3.69:1，避免山的轮廓变形。
+/// - 真实 panel 1 = 768×240（sprite-resource "Background 1 (Mountains)" sheet 第 1 行 panel），
+///   原图 1 行云（4 朵小云均匀分布）+ 1 行远山/草地，比例 3.2:1。
+/// - 已裁掉 panel 1 上下透明棋盘格天空 → 实际内容图 = 768×180，比例 4.267:1，
+///   渲染时 panel 1 完全覆盖垂直方向，无上下空白横条。
+/// - **窗口自适应**：以窗口高度 H 为基准，等比计算 panel 1 渲染宽度 W = H × 4.267，
+///   panel 1 渲染尺寸 (W, H) 始终保持原图比例 4.267:1，避免山的轮廓变形。
 /// - panel 1 居中显示：宽度不足时左右透出 skyTop（外层 Scaffold 提供）。
 /// - 水平方向：2 张 panel 1 横向拼接 + 按 [progress] 平移，120s 一周期循环滚动。
 ///   慢速滚动缓解 sprite 资源云种类有限带来的"视觉重复感"。
@@ -21,8 +23,8 @@ class ParallaxBackground extends ConsumerStatefulWidget {
   /// duration=60s × speed=0.5 → 实际 120s 一周期。
   static const double speed = 0.5;
 
-  /// panel 1 原图比例 768:208（已处理过顶紫横条，仍按 208 算高度比例）。
-  static const double imageAspect = 768 / 208; // ≈ 3.692
+  /// panel 1 原图比例 768:180（已裁掉上下棋盘格天空，仅保留 1 行云 + 1 行山内容）。
+  static const double imageAspect = 768 / 180; // ≈ 4.267
 
   @override
   ConsumerState<ParallaxBackground> createState() =>
