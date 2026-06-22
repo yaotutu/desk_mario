@@ -10,8 +10,8 @@ import 'core/constants/design_size.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. 强制横屏
-  await SystemChrome.setPreferredOrientations([
+  // 1. 强制横屏（仅允许 landscapeLeft + landscapeRight，禁用竖屏）
+  await SystemChrome.setPreferredOrientations(const [
     DeviceOrientation.landscapeLeft,
     DeviceOrientation.landscapeRight,
   ]);
@@ -21,12 +21,6 @@ Future<void> main() async {
     SystemUiMode.immersiveSticky,
     overlays: [],
   );
-
-  // 3. 锁定竖屏方向（iOS web 不生效，但 native 必需）
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.landscapeLeft,
-    DeviceOrientation.landscapeRight,
-  ]);
 
   runApp(
     ProviderScope(
