@@ -22,6 +22,15 @@ class MarioWidget extends StatefulWidget {
   /// 默认 false，配合场景横向滚动呈现 Mario 向前跑的视觉效果。
   final bool staticMode;
 
+  /// 放大倍数（NES 16×32 → 64×128）
+  static const double kScale = 4.0;
+
+  /// Mario 渲染宽度（逻辑像素，PositionedMario 居中计算需要）
+  static const double displayWidth = 16 * kScale;
+
+  /// Mario 渲染高度（逻辑像素）
+  static const double displayHeight = 32 * kScale;
+
   @override
   State<MarioWidget> createState() => _MarioWidgetState();
 }
@@ -40,9 +49,6 @@ class _MarioWidgetState extends State<MarioWidget>
 
   /// Big Mario 站立帧（NES 原版，16×32）
   static const _standFrame = 'assets/sprites/mario_big_stand.png';
-
-  /// 放大倍数（NES 16×32 → 64×128）
-  static const _scale = 4.0;
 
   @override
   void initState() {
@@ -98,8 +104,8 @@ class _MarioWidgetState extends State<MarioWidget>
       // 静态站立：直接渲染 big_stand，不开任何 AnimationController
       return Image.asset(
         _standFrame,
-        width: 16 * _scale,
-        height: 32 * _scale,
+        width: MarioWidget.displayWidth,
+        height: MarioWidget.displayHeight,
         filterQuality: FilterQuality.none,
         fit: BoxFit.contain,
       );
@@ -126,8 +132,8 @@ class _MarioWidgetState extends State<MarioWidget>
             _runFrames.length;
         return Image.asset(
           _runFrames[frameIndex],
-          width: 16 * _scale,
-          height: 32 * _scale,
+          width: MarioWidget.displayWidth,
+          height: MarioWidget.displayHeight,
           filterQuality: FilterQuality.none,
           fit: BoxFit.contain,
         );
@@ -142,6 +148,10 @@ class _MarioWidgetState extends State<MarioWidget>
 ///
 /// Mario 的 bottom = 屏高 × [GroundLayer.groundRatio]，
 /// 这样 Mario 脚底正好贴在地砖顶部，不悬浮也不埋进地砖。
+///
+/// 水平方向：Mario 中心点固定在屏宽 1/3 处（经典横版游戏视觉焦点），
+/// 留更多右侧空间给『前进方向』，横竖屏切换 / 屏幕宽度变化时
+/// Mario 都保持在这个相对位置。
 class PositionedMario extends StatelessWidget {
   const PositionedMario({super.key});
 
@@ -150,9 +160,10 @@ class PositionedMario extends StatelessWidget {
     final size = MediaQuery.sizeOf(context);
     // Mario 脚底 = 屏底往上 groundHeight 处（= GroundLayer 顶部）
     final bottom = size.height * GroundLayer.groundRatio;
-    // 水平方向偏左 18%（保留原位置）
+    // 水平方向：Mario 中心点 = 屏宽 / 3
+    final left = size.width / 3 - MarioWidget.displayWidth / 2;
     return Positioned(
-      left: size.width * 0.18,
+      left: left,
       bottom: bottom,
       child: const MarioWidget(),
     );
