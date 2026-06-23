@@ -55,16 +55,28 @@ lib/
     └── debug/widgets/              # Debug 面板（齿轮触发）
 ```
 
-## 架构核心：4 层视差栈
+## 架构核心：6 层视差栈（v2 / 方案 A）
 
-`LayeredScaffold` 用 `Stack` 把 4 个 layer 自底向上叠加：
+`LayeredScaffold` 用 `Stack` 把 6 层从底到顶叠加（**语义层级** → **渲染 Z-order**）：
 
-| Layer | 组件 | 说明 |
-|-------|------|------|
-| 1 | `ParallaxBackground` | 远景山脉 panel 1（NES sprite 768×176, imageAspect=4.364）|
-| 2 | `GroundLayer` | 地面砖块（NES World 1-1 sheet 真实 tile 32×32）|
-| 3 | `PositionedMario` + `TimeHud` | Mario 主角（独立原地跑步 + 上下浮动）+ 顶部时间 HH:MM |
-| 4 | `NotificationOverlay` | 4 级消息提醒（弱→强：图标呼吸/木牌/对话框打字机/PAUSE 强告警）|
+| 层      | 组件                  | 职责                                              | 语义层 / Z-order |
+|---------|----------------------|--------------------------------------------------|----------------|
+| L-1     | `AtmosphericLayer`   | 全屏氛围：色温（昼夜）+ 边缘暗角                  | 语义最底，渲染在 L4 之后（v1 bug fix）|
+| L0      | `ScrollingWorld`     | 视差背景 + 地面砖块（共享滚动/尺寸）               | 最底渲染       |
+| L1      | `WeatherLayer`       | 天气效果：雨/雪/雾/闪电（widget 内部分前后景深度） | 早期为占位     |
+| L2      | `PositionedMario`    | 主角 Mario（独立原地跑步 + 上下浮动）              |                 |
+| L3      | `TimeHud`            | 世界内 UI：顶部时间 HH:MM                          |                 |
+| L4      | `NotificationOverlay`| 业务消息：4 级弱提醒（L1~L4）                       |                 |
+| L5      | `DebugPanel`         | 系统 UI：右下角齿轮调试面板（可点击触发 4 级通知） | 最顶渲染       |
+
+**L-1 Atmosphere 的 Z-order 反直觉说明**：
+Flutter `Stack` 渲染顺序是 children[0]（最底）→ children[N-1]（最顶）。
+但 `AtmosphericLayer` 是"全屏滤镜"，必须渲染在 L0~L4 **之上**才能让色温覆盖到所有
+sprite，否则会被不透明的 sprite 完全遮住。所以 children 实际顺序是：
+```
+L0 → L1 → L2 → L3 → L4 → [L-1 Atmosphere] → L5 DebugPanel
+```
+通过 `IgnorePointer` 确保 Atmosphere 不影响 L5 DebugPanel 的点击交互。
 
 **关键设计：`ScrollingWorld` 顶层统一基础尺寸**
 
@@ -93,7 +105,7 @@ lib/
 - `notificationQueueProvider`（StateNotifierProvider）：**串行消息队列**（FIFO），同时只显示一条 `current`，演完调 `completeCurrent()` 出队下一条
 - `backgroundDimProvider`（StateProvider\<bool\>）：L4 强告警专用灰度模糊开关
 
-`LayeredScaffold` 当前只挂 ScrollingWorld + PositionedMario，后续 Step 3-5 会叠加 HUD/Notification/Debug panel。
+`LayeredScaffold` 当前已挂全部 6 层（v2 重构后）：Atmosphere / Background / Weather / Character / HUD / Notification / Debug panel。
 
 ## 屏幕适配（flutter_screenutil）
 
@@ -145,16 +157,17 @@ Mock 文本在 `NotificationLevel.defaultText`（中文）。`NotificationOverla
 5. **测试不能用 `pumpAndSettle`**：视差 + Mario 浮动都是无限动画，`pumpAndSettle` 永远不返回。统一用 `pump(Duration)` 推进固定帧数。
 6. **Widget 复用**：`TypewriterText` 是通用打字机，未来 Level 3 之外也可以直接复用。
 
-## 后续 Roadmap（代码注释里有 TODO 标记）
+## 后续 Roadmap
 
 - **Step 3**：完整 HUD（除时间外，可能加电量/通知数等）
-- **Step 4**：键盘快捷键（数字 1-4 触发通知、T 切主题）— 当前 home_page.dart 注释里说"Step 4 / Step 6 时再加回来"
+- **Step 4**：键盘快捷键（数字 1-4 触发通知、T 切主题）
 - **Step 5**：接入真实通知源（当前 Debug 面板触发 Mock）
-- **Step 6**：背景变暗的 `BackdropFilter` 真正接到 `LayeredScaffold`
+- **Step 6**：L4 强告警的 `BackdropFilter` 灰度模糊真正接到 `LayeredScaffold`
+- **Step 7**：L1 WeatherLayer 接入 weatherProvider（雨/雪/雾/闪电/沙尘等场景效果）
 
 ## 已知陷阱
 
-- `home_page.dart` 当前只有 `LayeredScaffold`（无 HUD / Notification / Debug panel 的 Stack 装配），但 `interaction_test.dart` 期望这些都存在——可能测试与实现有偏差，需要核对。
 - `L4 background_dim` provider 写了但实际 BackdropFilter 还没挂到 `LayeredScaffold`，L4 触发后视觉上无灰度模糊（当前只有半透明遮罩），等 Step 6 补完。
 - `Level3TypewriterDialog._onTyped` 用 `Future.delayed` 模拟停留 5s，销毁时未取消——如果在动画中 dispose widget 会触发 mounted 检查；现有测试通过 mounted 守卫已规避。
+- `AtmosphericLayer` 必须渲染在 L4 之后（L-1 语义层 + L4 之后 Z-order），否则冷蓝色覆盖会被 L0~L4 不透明 sprite 完全遮住。
 - 不要新增未在 `pubspec.yaml` 声明的依赖，CI 会因版本不匹配失败。

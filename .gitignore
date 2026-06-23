@@ -58,4 +58,5 @@ test/failures/
 # agent / IDE 工具本地配置（每个开发者本地有差异，不入库）
 .agents/
 .opencode/
+.omo/
 AGENTS.md
