@@ -14,12 +14,16 @@ import '../../../shared/widgets/scrolling_world.dart';
 ///   整个世界（panel + ground）永远同步平移，杜绝两层独立 shift 算错导致错位。
 /// - 尺寸绑死：tileWidth = panelWidth / [tilesPerPanel] = panelWidth / 32（整数比），
 ///   与 panel 1 横向完美对齐。
-/// - **永远铺满 + 多铺 1 列备用**：tileCount = [tilesPerPanel] + 1 = 33，
-///   渲染总宽度 = 33 × tileWidth = panelWidth × 33/32 = 1.03125 × panelWidth，
-///   多出的 0.03125 × panelWidth 供平移时备用，外层 ClipRect 裁掉屏幕外部分。
-///   一个 controller 周期（shift 走 panelWidth）正好让 ground 走完 [tilesPerPanel] = 32
-///   个 tile 循环（一个完整 tile 循环），与 panel 1 的 1 个完整切换严格同步。
+/// - **永远铺满 + 2 个完整循环 + 1 列备用**：tileCount = 2 × [tilesPerPanel] + 1 = 65，
+///   渲染总宽度 = 65 × tileWidth = 2 × panelWidth + tileWidth（与 [ParallaxBackground]
+///   的"2 张 panel 拼接"严格对称）。多出的 1 列做接缝冗余。
+///   一个 controller 周期（shift 走 panelWidth = 32 tile 宽度）正好让 ground 走完
+///   1 个完整 tile 循环，与 panel 1 的 1 次完整切换严格同步。
 /// - 没有 CustomPaint，100% sprite-resource 真实素材。
+///
+/// 为什么不能只铺 [tilesPerPanel] + 1 = 33：ground 总宽 = 33 × tileWidth
+/// = 1.03 × panelWidth，shift 接近 -panelWidth 时 ground 整体已经移出屏幕右端，
+/// 但 panel 1+2 还能覆盖屏幕 → "有背景、底部没瓷砖"bug。必须铺 2 × panelWidth 才对。
 ///
 /// 为什么用 Stack + Positioned 而非 Row：Row 子项总宽 = 33 × tileWidth 远超 totalWidth，
 /// 在 1280×720 设计尺寸下 overflow ~1658px 触发 RenderFlex overflow assertion。
@@ -38,11 +42,17 @@ class GroundLayer extends StatelessWidget {
   /// ⚠️ 改 [groundRatio] 或 [ParallaxBackground.imageAspect] 必须同步改这个值。
   static const int tilesPerPanel = 32;
 
-  /// 多铺 [extraTiles] 列 tile 备用（避免平移时右边露出 sky）。
+  /// 一个 controller 周期（shift 走完 panelWidth）内 panel 走 [tilesPerPanel] 个 tile
+  /// 宽度（=1 个 ground 完整循环）。要让 ground 在任何 shift 时刻都铺满屏幕，
+  /// ground 渲染总宽必须 ≥ 一个 panel 渲染总宽 = 2 × panelWidth = 2 × [tilesPerPanel]
+  /// × tileWidth。多铺 1 列做接缝冗余。
+  /// ⚠️ 必须和 [ParallaxBackground] 的"2 张 panel 拼接"对称，否则在某段 shift 范围
+  /// 内 panel 已铺满但 ground 漏出 sky（实测 bug_11 截图：ground 宽度仅 204 dp）。
   static const int extraTiles = 1;
 
-  /// tile 总数 = [tilesPerPanel] + [extraTiles]（铺满一个 panel 宽度 + 备用）。
-  static const int totalTiles = tilesPerPanel + extraTiles;
+  /// tile 总数 = 2 × [tilesPerPanel] + [extraTiles]（铺满 2 个 panel 宽度 + 备用），
+  /// 与 [ParallaxBackground] 的 2 张 panel 拼接严格对称。
+  static const int totalTiles = 2 * tilesPerPanel + extraTiles;
 
   @override
   Widget build(BuildContext context) {
