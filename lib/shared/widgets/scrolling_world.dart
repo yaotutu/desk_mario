@@ -6,21 +6,24 @@ import '../../features/parallax/widgets/parallax_background.dart';
 
 /// 滚动世界顶层容器
 ///
-/// 解决问题：原来 [ParallaxBackground] 和 [GroundLayer] 各自用 [LayoutBuilder]
-/// 算 panelWidth/tileWidth/groundHeight，缩放时两层独立计算，屏宽变化时
-/// `floor(屏宽/tileWidth)` 不整除 → 末格 tile 没铺到 + tile 像素不对齐 →
-/// 视觉抖动 + 右侧露出 sky。
+/// 解决问题：
+/// 1. 尺寸：原来 [ParallaxBackground] 和 [GroundLayer] 各自用 [LayoutBuilder]
+///    算 panelWidth/tileWidth/groundHeight，缩放时两层独立计算，屏宽变化时
+///    `floor(屏宽/tileWidth)` 不整除 → 末格 tile 没铺到 + tile 像素不对齐
+///    → 视觉抖动 + 右侧露出 sky。ScrollingWorld 顶层统一算基础尺寸，
+///    通过 [ScrollingMetrics] InheritedWidget 暴露给两个层。
+/// 2. 同步：原来 panel 和 ground 各自算 shift，1 个周期内 panel 走 panelWidth、
+///    ground 走 5 tile 宽度（视差反了：panel 比 ground 快 6.4×），容易错位。
+///    现在 ScrollingWorld 顶层统一算 shift = -progress × panelWidth，
+///    用单个 [Transform.translate] 包住整个 panel + ground 子树，
+///    整个世界永远同步平移。
 ///
-/// 修法：ScrollingWorld 顶层统一算基础尺寸，并通过 [ScrollingMetrics]
-/// InheritedWidget 暴露给两个层；共享 progress（同一 AnimationController）。
-/// tileWidth 锁死 = panelWidth / [GroundLayer.tilesPerPanel]（整数比 1:32），
-/// tileCount 固定 [GroundLayer.totalTiles]（永远铺满 + 多 2 列滚动备用）。
+/// 关键比例：tileWidth 锁死 = panelWidth / [GroundLayer.tilesPerPanel]
+/// （整数比 1:32），所以 1 个 controller 周期内整个世界正好平移 1 个 panel 宽度
+/// = 32 个 tile 宽度 = 1 个完整 tile 循环，与 panel 1 的 1 次完整切换严格同步。
 ///
-/// 当前视差设置：
-/// - [ParallaxBackground] shift = -progress × panelWidth（一个 controller 周期走一个 panel）
-/// - [GroundLayer] shift = -progress × tileWidth × scrollTilesPerPeriod
-///   （一个 controller 周期走 [GroundLayer.scrollTilesPerPeriod] 个 tile 周期，
-///   60s 走 5 tile = 12s/tile；远景 6.4× 慢 = 经典视差）
+/// 视差（远景慢/近景快）后续可在 panel 内部拆更细的子层（云朵 / 山脉 / 远景）实现，
+/// 但 panel 和 ground 这两层保持严格 1:1 同步，避免错位 bug。
 class ScrollingWorld extends ConsumerStatefulWidget {
   const ScrollingWorld({super.key});
 
@@ -71,20 +74,38 @@ class _ScrollingWorldState extends ConsumerState<ScrollingWorld>
             // tileWidth = panelWidth / tilesPerPanel（整数比，确保对齐）
             final tileWidth = panelWidth / GroundLayer.tilesPerPanel;
 
+            // 整体 shift：panel 和 ground 共享同一个 Transform.translate，
+            // 永远同步。1 个周期内整个世界向左平移 panelWidth = 32 tile 宽度。
+            // 视差（远景慢/近景快）后续可在 panel 内部拆更细的子层实现，
+            // 但 panel 和 ground 这两层保持严格 1:1 同步，避免错位 bug。
+            final shift = -_ctrl.value * panelWidth;
+
             return ScrollingMetrics(
               progress: _ctrl.value,
+              shift: shift,
               panelWidth: panelWidth,
               panelHeight: panelHeight,
               tileWidth: tileWidth,
               groundHeight: groundHeight,
               totalWidth: width,
               totalHeight: height,
-              child: Stack(
-                fit: StackFit.expand,
-                children: const [
-                  ParallaxBackground(),
-                  GroundLayer(),
-                ],
+              child: SizedBox(
+                width: width,
+                height: height,
+                child: ClipRect(
+                  child: Transform.translate(
+                    offset: Offset(shift, 0),
+                    child: Stack(
+                      // loose 让 ParallaxBackground (4616×529) 和 GroundLayer
+                      // (33*tileWidth × groundHeight) 保持自己的尺寸不被拉伸，
+                      // 超出 totalWidth 的部分由外层 ClipRect 裁掉。
+                      children: const [
+                        ParallaxBackground(),
+                        GroundLayer(),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             );
           },
@@ -101,6 +122,10 @@ class _ScrollingWorldState extends ConsumerState<ScrollingWorld>
 class ScrollingMetrics extends InheritedWidget {
   /// AnimationController 当前进度，0.0 ~ 1.0（一个 controller 周期内）。
   final double progress;
+
+  /// 整体水平偏移（已应用 Transform.translate），子层直接叠在 Transform 内即可。
+  /// 一个周期内 shift 从 0 走到 -panelWidth，panel 切换一次 + ground 循环 32 tile 一次。
+  final double shift;
 
   /// 背景 panel 1 渲染宽度（一个完整滚动周期 = 这个距离）。
   final double panelWidth;
@@ -123,6 +148,7 @@ class ScrollingMetrics extends InheritedWidget {
   const ScrollingMetrics({
     super.key,
     required this.progress,
+    required this.shift,
     required this.panelWidth,
     required this.panelHeight,
     required this.tileWidth,
@@ -141,6 +167,7 @@ class ScrollingMetrics extends InheritedWidget {
   @override
   bool updateShouldNotify(ScrollingMetrics old) =>
       progress != old.progress ||
+      shift != old.shift ||
       panelWidth != old.panelWidth ||
       panelHeight != old.panelHeight ||
       tileWidth != old.tileWidth ||
