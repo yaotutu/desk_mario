@@ -137,5 +137,5 @@ L0 → L1 → L2 → L3 → L4 → [L-1 Atmosphere] → L5 DebugPanel
 - **Step 3**：完整 HUD（电量/通知数等）
 - **Step 4**：键盘快捷键（1-4 触发通知、T 切主题）
 - **Step 5**：接入真实通知源
-- **Step 6**：L4 强告警的 `BackdropFilter` 灰度模糊接到 `LayeredScaffold`
+- **Step 6**：✅ L4 强告警的 `BackdropFilter` 灰度模糊接到 `LayeredScaffold`（已完成，详见 [docs/roadmap.md](docs/roadmap.md) §Step 6）
 - **Step 7**：L1 WeatherLayer 接入 weatherProvider（雨/雪/雾/闪电）
