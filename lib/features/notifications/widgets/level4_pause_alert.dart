@@ -10,9 +10,10 @@ import '../providers/notification_queue_provider.dart';
 /// Level 4：强告警
 ///
 /// 激活时：
-/// 1. 通过 [backgroundDimProvider] 把 Layer 1 & 2 变为灰度 + 高斯模糊
-///    （实际模糊由 [LayeredScaffold] 监听该 provider 后用 BackdropFilter 包裹 Layer1&2 子树）
+/// 1. 通过 [backgroundDimProvider] 触发 [LayeredScaffold] 的 `_DimOverlay`
+///    叠加层（去色 + 高斯模糊 + 40% 黑），让 L0~L3 + L-1 视觉上"凝固"
 /// 2. 屏幕正中闪烁显示巨型 PAUSE 字样 + [解除告警] 按钮
+///    （L4 文字和按钮本身**不**被 dim 覆盖，保持清晰彩色）
 ///
 /// 点击 [解除告警] 后：
 /// - 关闭 dim

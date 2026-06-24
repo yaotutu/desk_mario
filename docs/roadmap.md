@@ -41,11 +41,19 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 
 ---
 
-## Step 6：L4 强告警的 `BackdropFilter` 灰度模糊
+## Step 6：L4 强告警的 `BackdropFilter` 灰度模糊 ✅
 
-**目标**：在 `LayeredScaffold` 监听 `backgroundDimProvider`，当值为 true 时用 `ColorFiltered`（灰度）+ `BackdropFilter`（模糊）包裹 L0 子树。
+**状态**：已完成。`LayeredScaffold` 改 `ConsumerWidget`，监听 `backgroundDimProvider`：
+- true 时在 L-1 Atmosphere 之上、L4 Notification 之下叠加 `_DimOverlay`
+- `_DimOverlay` 用 `ColorFiltered`（ITU-R BT.709 luminance 灰度矩阵）+
+  `BackdropFilter`（高斯模糊 sigma=4） + 40% 黑色叠层
+- 嵌套顺序：外→内 `IgnorePointer` → `ColorFiltered` → `BackdropFilter` → `DecoratedBox`
+- L4 Notification 文字和 L5 DebugPanel 不被覆盖，保持清晰彩色
+- `Level4PauseAlert` 的 35% 半透明黑叠层保留，与 _DimOverlay 叠加形成"凝固"感
 
-**当前 bug**：provider 已被 `Level4PauseAlert` 置 true，但 `BackdropFilter` 没接到 `LayeredScaffold`，L4 触发后视觉上只有半透明遮罩，无灰度模糊。
+**验证**：
+- widget_test + interaction_test 11/11 通过
+- 真机截图（hardcode provider=true）确认天空/Mario/地面/云全部灰度+模糊+暗化
 
 **实现要点**：
 - L0 子树是 `ScrollingWorld`，需要在 `LayeredScaffold` 中判断 `backgroundDimProvider` 并条件性包一层 `BackdropFilter`
@@ -70,7 +78,7 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 按"投入产出比"排序：
 
 1. **Step 7 Weather**（用户问过，提前规划层级就是为这步）—— 投入中等，产出高，让摆件活起来。
-2. **Step 6 BackdropFilter**（修已知 bug）—— 投入低，产出中，修一个视觉缺陷。
+2. **Step 6 BackdropFilter**（修已知 bug）—— ✅ 已完成。
 3. **Step 3 HUD 完整化** —— 投入低，产出中，加点常驻信息。
 4. **Step 4 快捷键** —— 投入低，产出低，Debug 面板已能用。
 5. **Step 5 真实通知** —— 投入高，产出未知，取决于真实通知源接入复杂度。
