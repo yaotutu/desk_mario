@@ -6,26 +6,25 @@ import '../../../core/theme/app_theme.dart';
 import '../../../shared/widgets/typewriter_text.dart';
 import '../providers/notification_queue_provider.dart';
 
-/// Level 3：中等侵入
+/// Severity 3：中等侵入
 ///
 /// 屏幕底部平滑升起一个半透明深色对话框，
-/// 打字机逐字显示文本，完成后停留 5 秒淡出。
-class Level3TypewriterDialog extends ConsumerStatefulWidget {
-  const Level3TypewriterDialog({
+/// 打字机逐字显示文本，完成后停留 5 秒淡出并自动出队下一条。
+class Severity3TypewriterDialog extends ConsumerStatefulWidget {
+  const Severity3TypewriterDialog({
     super.key,
     required this.text,
-    required this.onComplete,
   });
 
   final String text;
-  final VoidCallback onComplete;
 
   @override
-  ConsumerState<Level3TypewriterDialog> createState() =>
-      _Level3TypewriterDialogState();
+  ConsumerState<Severity3TypewriterDialog> createState() =>
+      _Severity3TypewriterDialogState();
 }
 
-class _Level3TypewriterDialogState extends ConsumerState<Level3TypewriterDialog>
+class _Severity3TypewriterDialogState
+    extends ConsumerState<Severity3TypewriterDialog>
     with SingleTickerProviderStateMixin {
   late final AnimationController _riseCtrl;
   late final Animation<double> _rise;
@@ -53,13 +52,12 @@ class _Level3TypewriterDialogState extends ConsumerState<Level3TypewriterDialog>
     setState(() => _typed = true);
     // 停留 5 秒后淡出
     Future.delayed(const Duration(seconds: 5), () {
-      if (mounted) {
-        setState(() => _fadingOut = true);
-        Future.delayed(const Duration(milliseconds: 400), () {
-          ref.read(notificationQueueProvider.notifier).completeCurrent();
-          widget.onComplete();
-        });
-      }
+      if (!mounted) return;
+      setState(() => _fadingOut = true);
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        ref.read(notificationQueueProvider.notifier).completeCurrent();
+      });
     });
   }
 

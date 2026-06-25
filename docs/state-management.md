@@ -8,11 +8,10 @@
 
 全部用 `flutter_riverpod ^2.5.1`，主要有：
 
-- `themeModeProvider`（StateProvider\<ThemeMode\>）：主题模式，默认 `ThemeMode.system`
-- `isDarkModeProvider`（Provider\<bool\>）：从 themeMode 派生，供 Debug 面板 Switch + AtmosphericLayer 色温
+- `themeModeProvider`（StateProvider\<ThemeMode\>）：主题模式，默认 `ThemeMode.system`；想知道当前是否黑夜直接 `Theme.of(context).brightness`，不要单独搞一个 `isDarkProvider`
 - `clockProvider`（StateNotifierProvider）：当前时间，对齐整分钟 tick
 - `notificationQueueProvider`（StateNotifierProvider）：**串行消息队列**（FIFO），同时只显示一条 `current`，演完调 `completeCurrent()` 出队下一条
-- `backgroundDimProvider`（StateProvider\<bool\>）：L4 强告警专用灰度模糊开关
+- `backgroundDimProvider`（StateProvider\<bool\>）：Severity 4 强告警专用灰度模糊开关
 
 `LayeredScaffold` 当前已挂全部 6 层（v2 重构后）：Atmosphere / Background / Weather / Character / HUD / Notification / Debug panel。
 

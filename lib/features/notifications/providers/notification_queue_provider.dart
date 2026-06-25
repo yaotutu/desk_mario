@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/notification_level.dart';
 import '../models/notification_message.dart';
+import '../models/notification_severity.dart';
 
 /// 消息队列状态
 class NotificationQueueState {
@@ -58,9 +58,9 @@ const Object _sentinel = Object();
 class NotificationQueueNotifier extends StateNotifier<NotificationQueueState> {
   NotificationQueueNotifier() : super(const NotificationQueueState());
 
-  /// 按级别入队一条 Mock 消息
-  void enqueueLevel(NotificationLevel level) {
-    state = state.enqueue(NotificationMessage.defaults(level));
+  /// 按严重度入队一条 Mock 消息
+  void enqueueSeverity(NotificationSeverity severity) {
+    state = state.enqueue(NotificationMessage.defaults(severity));
   }
 
   /// 入队自定义消息
@@ -79,3 +79,4 @@ final notificationQueueProvider =
     StateNotifierProvider<NotificationQueueNotifier, NotificationQueueState>(
   (ref) => NotificationQueueNotifier(),
 );
+

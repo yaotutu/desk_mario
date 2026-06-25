@@ -7,7 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../providers/background_dim_provider.dart';
 import '../providers/notification_queue_provider.dart';
 
-/// Level 4：强告警
+/// Severity 4：强告警
 ///
 /// 激活时：
 /// 1. 通过 [backgroundDimProvider] 触发 [LayeredScaffold] 的 `_DimOverlay`
@@ -18,14 +18,14 @@ import '../providers/notification_queue_provider.dart';
 /// 点击 [解除告警] 后：
 /// - 关闭 dim
 /// - 出队下一条消息
-class Level4PauseAlert extends ConsumerStatefulWidget {
-  const Level4PauseAlert({super.key});
+class Severity4PauseAlert extends ConsumerStatefulWidget {
+  const Severity4PauseAlert({super.key});
 
   @override
-  ConsumerState<Level4PauseAlert> createState() => _Level4PauseAlertState();
+  ConsumerState<Severity4PauseAlert> createState() => _Severity4PauseAlertState();
 }
 
-class _Level4PauseAlertState extends ConsumerState<Level4PauseAlert>
+class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
     with TickerProviderStateMixin {
   late final AnimationController _blinkCtrl; // PAUSE 闪烁
   late final Animation<double> _blink;

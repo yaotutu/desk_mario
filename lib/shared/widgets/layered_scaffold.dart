@@ -9,7 +9,7 @@ import '../../features/hud/widgets/time_hud.dart';
 import '../../features/notifications/providers/background_dim_provider.dart';
 import '../../features/notifications/widgets/notification_overlay.dart';
 import '../../features/weather/widgets/weather_layer.dart';
-import '../widgets/scrolling_world.dart';
+import '../../features/parallax/widgets/scrolling_world.dart';
 import 'atmospheric_layer.dart';
 
 /// 主页装配点（6 层视差栈，按从底到顶的视觉叠加顺序）

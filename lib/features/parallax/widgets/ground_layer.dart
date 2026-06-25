@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/scrolling_world.dart';
+import 'scrolling_world.dart';
 
 /// 地面层（Layer 2：地面砖块）
 ///

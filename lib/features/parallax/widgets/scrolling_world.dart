@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../features/parallax/widgets/ground_layer.dart';
-import '../../features/parallax/widgets/parallax_background.dart';
+import 'ground_layer.dart';
+import 'parallax_background.dart';
 
 /// 滚动世界顶层容器
 ///

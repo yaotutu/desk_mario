@@ -3,42 +3,32 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../parallax/widgets/ground_layer.dart';
 
-/// 主角 Mario（Layer 3，叠在 Layer 2 地面之上）
+/// 主角 Mario 的共享渲染常量
 ///
-/// 默认动态：跑步 3 帧循环 + 上下轻微浮动，配合 [ParallaxBackground] 和
-/// [GroundLayer] 的横向滚动，呈现"Mario 在无限往前跑"的经典横版卷轴效果。
-///
-/// 传 `staticMode: true` 可切到静态站立（仅在确实需要静态摆件时使用）。
-///
-/// 替换素材点：换其他 Mario 变身状态（小/Super/Fiery），
-/// 只需改 [_runFrames] / [_standFrame] 数组指向新的 PNG 文件名即可。
-class MarioWidget extends StatefulWidget {
-  const MarioWidget({
-    super.key,
-    this.staticMode = false,
-  });
-
-  /// true = 静态站立（big_stand），false = 跑步 3 帧循环 + 上下浮动。
-  /// 默认 false，配合场景横向滚动呈现 Mario 向前跑的视觉效果。
-  final bool staticMode;
+/// NES 16×32 原始 sprite 放大 4× → 64×128（设计尺寸）。
+/// 公开给 [PositionedMario] 居中计算和两个独立 widget 共用。
+class MarioDisplay {
+  const MarioDisplay._();
 
   /// 放大倍数（NES 16×32 → 64×128）
   static const double kScale = 4.0;
 
-  /// Mario 渲染宽度（逻辑像素，PositionedMario 居中计算需要）
-  static const double displayWidth = 16 * kScale;
+  /// Mario 渲染宽度（逻辑像素）
+  static const double width = 16 * kScale;
 
   /// Mario 渲染高度（逻辑像素）
-  static const double displayHeight = 32 * kScale;
-
-  @override
-  State<MarioWidget> createState() => _MarioWidgetState();
+  static const double height = 32 * kScale;
 }
 
-class _MarioWidgetState extends State<MarioWidget>
-    with TickerProviderStateMixin {
-  late final AnimationController _frameCtrl; // 帧切换（仅跑步模式）
-  late final AnimationController _floatCtrl; // 上下浮动（仅跑步模式）
+/// 跑步版 Mario（Layer 2 主角，默认使用）
+///
+/// 跑步 3 帧循环 + 上下轻微浮动，配合 [ParallaxBackground] 和
+/// [GroundLayer] 的横向滚动，呈现"Mario 在无限往前跑"的经典横版卷轴效果。
+///
+/// 替换素材点：换其他 Mario 变身状态（小/Super/Fiery），
+/// 只需改 [_runFrames] 数组指向新的 PNG 文件名即可。
+class MarioWidget extends StatefulWidget {
+  const MarioWidget({super.key});
 
   /// Big Mario 跑步 3 帧（NES 原版，16×32）
   static const _runFrames = [
@@ -47,42 +37,24 @@ class _MarioWidgetState extends State<MarioWidget>
     'assets/sprites/mario_big_run_f2.png',
   ];
 
-  /// Big Mario 站立帧（NES 原版，16×32）
-  static const _standFrame = 'assets/sprites/mario_big_stand.png';
+  @override
+  State<MarioWidget> createState() => _MarioWidgetState();
+}
+
+class _MarioWidgetState extends State<MarioWidget>
+    with TickerProviderStateMixin {
+  late final AnimationController _frameCtrl; // 帧切换
+  late final AnimationController _floatCtrl; // 上下浮动
 
   @override
   void initState() {
     super.initState();
-    if (!widget.staticMode) {
-      // 帧动画：3 帧循环，每帧 120ms
-      _frameCtrl = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 360),
-      )..repeat();
-      // 上下浮动：与帧动画节奏相近，模拟颠簸
-      _floatCtrl = AnimationController(
-        vsync: this,
-        duration: const Duration(milliseconds: 180),
-      )..repeat(reverse: true);
-    }
-  }
-
-  @override
-  void didUpdateWidget(covariant MarioWidget oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.staticMode && !oldWidget.staticMode) {
-      _frameCtrl.dispose();
-      _floatCtrl.dispose();
-    } else if (!widget.staticMode && oldWidget.staticMode) {
-      _initRunAnimations();
-    }
-  }
-
-  void _initRunAnimations() {
+    // 帧动画：3 帧循环，每帧 120ms
     _frameCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 360),
     )..repeat();
+    // 上下浮动：与帧动画节奏相近，模拟颠簸
     _floatCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 180),
@@ -91,26 +63,13 @@ class _MarioWidgetState extends State<MarioWidget>
 
   @override
   void dispose() {
-    if (!widget.staticMode) {
-      _frameCtrl.dispose();
-      _floatCtrl.dispose();
-    }
+    _frameCtrl.dispose();
+    _floatCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.staticMode) {
-      // 静态站立：直接渲染 big_stand，不开任何 AnimationController
-      return Image.asset(
-        _standFrame,
-        width: MarioWidget.displayWidth,
-        height: MarioWidget.displayHeight,
-        filterQuality: FilterQuality.none,
-        fit: BoxFit.contain,
-      );
-    }
-
     return AnimatedBuilder(
       animation: _floatCtrl,
       builder: (context, _) {
@@ -128,16 +87,37 @@ class _MarioWidgetState extends State<MarioWidget>
     return AnimatedBuilder(
       animation: _frameCtrl,
       builder: (context, _) {
-        final frameIndex = (_frameCtrl.value * _runFrames.length).floor() %
-            _runFrames.length;
+        final frameIndex =
+            (_frameCtrl.value * MarioWidget._runFrames.length).floor() %
+                MarioWidget._runFrames.length;
         return Image.asset(
-          _runFrames[frameIndex],
-          width: MarioWidget.displayWidth,
-          height: MarioWidget.displayHeight,
+          MarioWidget._runFrames[frameIndex],
+          width: MarioDisplay.width,
+          height: MarioDisplay.height,
           filterQuality: FilterQuality.none,
           fit: BoxFit.contain,
         );
       },
+    );
+  }
+}
+
+/// 静态站立版 Mario（仅在确实需要静态摆件时使用，例如截图/设置页）
+///
+/// 无任何动画，渲染单张 `mario_big_stand.png`。
+class StaticMario extends StatelessWidget {
+  const StaticMario({super.key});
+
+  static const String _asset = 'assets/sprites/mario_big_stand.png';
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      _asset,
+      width: MarioDisplay.width,
+      height: MarioDisplay.height,
+      filterQuality: FilterQuality.none,
+      fit: BoxFit.contain,
     );
   }
 }
@@ -161,7 +141,7 @@ class PositionedMario extends StatelessWidget {
     // Mario 脚底 = 屏底往上 groundHeight 处（= GroundLayer 顶部）
     final bottom = size.height * GroundLayer.groundRatio;
     // 水平方向：Mario 中心点 = 屏宽 / 3
-    final left = size.width / 3 - MarioWidget.displayWidth / 2;
+    final left = size.width / 3 - MarioDisplay.width / 2;
     return Positioned(
       left: left,
       bottom: bottom,

@@ -19,7 +19,7 @@
 
 5. **测试不能用 `pumpAndSettle`**：视差 + Mario 浮动都是无限动画，`pumpAndSettle` 永远不返回。统一用 `pump(Duration)` 推进固定帧数。
 
-6. **Widget 复用**：`TypewriterText` 是通用打字机，未来 Level 3 之外也可以直接复用。
+6. **Widget 复用**：`TypewriterText` 是通用打字机，未来 Severity 3 之外也可以直接复用。
 
 7. **层级单一职责**：6 层架构中每层只看名字就知道放什么，可扩展点遵循"按视觉深度 + 按职责语义"分层：
    - 角色血条 → L3 HUD
@@ -43,15 +43,18 @@
 
 **修改建议**：任何调整层级顺序前，先看 [architecture.md 中 6 层视差栈章节](../AGENTS.md#架构核心6-层视差栈v2--方案-a) 的反直觉说明。
 
-### 2. `L4 background_dim` 已写但 `BackdropFilter` 没接到 `LayeredScaffold`
+### 2. ✅ 已修复：L4 强告警的 `BackdropFilter` 必须接到 `LayeredScaffold`（Step 6）
 
-**陷阱**：L4 强告警触发后只有半透明遮罩，无灰度模糊。
+**历史**：旧版 `Severity4PauseAlert` 触发后只叠了半透明黑遮罩，没有灰度+模糊，看起来"告警感"不够。Step 6 已把 `BackdropFilter` + `ColorFiltered` 接到 `LayeredScaffold`（commit `f5adc99`），L4 触发时 L0~L3 + L-1 全灰度+模糊+暗化。
 
-**原因**：Roadmap Step 6 待做（详见 [roadmap.md](roadmap.md)）。
+**实现位置**：[`lib/shared/widgets/layered_scaffold.dart`](../../lib/shared/widgets/layered_scaffold.dart) 的 `_DimOverlay`（嵌套顺序：`IgnorePointer` → `ColorFiltered` → `BackdropFilter` → `DecoratedBox`），仅在 `backgroundDimProvider` 为 true 时挂载。
 
-**当前 workaround**：先接受只有半透明遮罩的视觉效果。
+**反向提醒（别回退）**：
+- `_DimOverlay` 位置必须在 L-1 Atmosphere 之上、L4 Notification 之下——挪到 Notification 之上会让 PAUSE 文字也被模糊掉。
+- 模糊的是"它下方的画面"，所以必须**叠加**而不是**包裹**L0~L3 子树。
+- L-1 Atmosphere 的色温必须一起被灰度模糊（避免灰度时反而色彩鲜艳）。
 
-### 3. `Level3TypewriterDialog._onTyped` 用 `Future.delayed`
+### 3. `Severity3TypewriterDialog._onTyped` 用 `Future.delayed`
 
 **陷阱**：模拟停留 5s 时用 `Future.delayed`，销毁时未取消。
 

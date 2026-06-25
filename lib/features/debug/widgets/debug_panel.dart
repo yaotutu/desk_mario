@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/theme/theme_controller.dart';
-import '../../notifications/models/notification_level.dart';
+import '../../notifications/models/notification_severity.dart';
 import '../../notifications/providers/notification_queue_provider.dart';
 
 /// Debug Panel（右下角隐蔽调试入口）
@@ -11,7 +11,7 @@ import '../../notifications/providers/notification_queue_provider.dart';
 /// 默认是一个半透明极小的齿轮图标。点击展开 4 个 Test 按钮 + 主题开关。
 /// 再次点击齿轮或点击外部可收起。
 ///
-/// 用于在没有后端的情况下触发 4 级消息动画演出。
+/// 用于在没有后端的情况下触发 4 个严重度的消息动画演出。
 class DebugPanel extends ConsumerStatefulWidget {
   const DebugPanel({super.key});
 
@@ -24,8 +24,8 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
 
   void _toggle() => setState(() => _expanded = !_expanded);
 
-  void _test(NotificationLevel level) {
-    ref.read(notificationQueueProvider.notifier).enqueueLevel(level);
+  void _test(NotificationSeverity severity) {
+    ref.read(notificationQueueProvider.notifier).enqueueSeverity(severity);
   }
 
   void _toggleTheme(bool isDark) {
@@ -35,7 +35,8 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = ref.watch(isDarkModeProvider);
+    // 直接读 MaterialApp 的 ThemeData brightness，自动响应系统 + 手动切换
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Positioned(
       right: 12.w,
@@ -116,10 +117,14 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
                 spacing: 8.w,
                 runSpacing: 8.h,
                 children: [
-                  _buildBtn('Test L1', () => _test(NotificationLevel.level1)),
-                  _buildBtn('Test L2', () => _test(NotificationLevel.level2)),
-                  _buildBtn('Test L3', () => _test(NotificationLevel.level3)),
-                  _buildBtn('Test L4', () => _test(NotificationLevel.level4)),
+                  _buildBtn(
+                      'Test L1', () => _test(NotificationSeverity.severity1)),
+                  _buildBtn(
+                      'Test L2', () => _test(NotificationSeverity.severity2)),
+                  _buildBtn(
+                      'Test L3', () => _test(NotificationSeverity.severity3)),
+                  _buildBtn(
+                      'Test L4', () => _test(NotificationSeverity.severity4)),
                 ],
               ),
               SizedBox(height: 12.h),

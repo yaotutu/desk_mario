@@ -49,7 +49,7 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
   `BackdropFilter`（高斯模糊 sigma=4） + 40% 黑色叠层
 - 嵌套顺序：外→内 `IgnorePointer` → `ColorFiltered` → `BackdropFilter` → `DecoratedBox`
 - L4 Notification 文字和 L5 DebugPanel 不被覆盖，保持清晰彩色
-- `Level4PauseAlert` 的 35% 半透明黑叠层保留，与 _DimOverlay 叠加形成"凝固"感
+- `Severity4PauseAlert` 的 35% 半透明黑叠层保留，与 _DimOverlay 叠加形成"凝固"感
 
 **验证**：
 - widget_test + interaction_test 11/11 通过

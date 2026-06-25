@@ -91,7 +91,7 @@ void main() {
     });
   });
 
-  group('Level 1 弱提醒', () {
+  group('Severity 1 弱提醒', () {
     testWidgets('点 Test L1 出现呼吸图标，5 秒后消失', (tester) async {
       await _pumpApp(tester);
 
@@ -112,7 +112,7 @@ void main() {
     });
   });
 
-  group('Level 2 木牌', () {
+  group('Severity 2 木牌', () {
     testWidgets('点 Test L2 木牌弹出，含 Mock 文本', (tester) async {
       await _pumpApp(tester);
 
@@ -131,7 +131,7 @@ void main() {
     });
   });
 
-  group('Level 3 对话框 + 打字机', () {
+  group('Severity 3 对话框 + 打字机', () {
     testWidgets('点 Test L3 底部对话框升起，含角色名和打字机正文', (tester) async {
       await _pumpApp(tester);
 
@@ -180,7 +180,7 @@ void main() {
     });
   });
 
-  group('Level 4 强告警', () {
+  group('Severity 4 强告警', () {
     testWidgets('点 Test L4 出现 PAUSE 和解除告警按钮', (tester) async {
       await _pumpApp(tester);
 

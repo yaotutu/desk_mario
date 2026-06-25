@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../../core/theme/theme_controller.dart';
 
 /// 全屏氛围层（L-1 Atmosphere，最底层滤镜）
 ///
@@ -17,12 +14,13 @@ import '../../core/theme/theme_controller.dart';
 ///
 /// 不拦截用户点击：Debug 面板在 L5 System，本层在 L-1 不会被任何层
 /// 覆盖，但为了保险依然包一层 [IgnorePointer]。
-class AtmosphericLayer extends ConsumerWidget {
+class AtmosphericLayer extends StatelessWidget {
   const AtmosphericLayer({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = ref.watch(isDarkModeProvider);
+  Widget build(BuildContext context) {
+    // 直接读 MaterialApp 的 ThemeData brightness，自动响应系统 + 手动切换
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return IgnorePointer(
       child: SizedBox.expand(

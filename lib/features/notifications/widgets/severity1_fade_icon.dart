@@ -5,23 +5,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/notification_queue_provider.dart';
 
-/// Level 1：极弱提醒
+/// Severity 1：极弱提醒
 ///
 /// 屏幕右上角淡入一个极小图标，FadeTransition 呼吸闪烁，
-/// 持续 5 秒后淡出。演出完成回调 [onComplete]。
-class Level1FadeIcon extends ConsumerStatefulWidget {
-  const Level1FadeIcon({
-    super.key,
-    required this.onComplete,
-  });
-
-  final VoidCallback onComplete;
+/// 持续 5 秒后淡出并自动出队下一条消息。
+class Severity1FadeIcon extends ConsumerStatefulWidget {
+  const Severity1FadeIcon({super.key});
 
   @override
-  ConsumerState<Level1FadeIcon> createState() => _Level1FadeIconState();
+  ConsumerState<Severity1FadeIcon> createState() => _Severity1FadeIconState();
 }
 
-class _Level1FadeIconState extends ConsumerState<Level1FadeIcon>
+class _Severity1FadeIconState extends ConsumerState<Severity1FadeIcon>
     with TickerProviderStateMixin {
   late final AnimationController _lifeCtrl; // 生命周期 5s
   late final AnimationController _breathCtrl; // 呼吸闪烁
@@ -40,7 +35,6 @@ class _Level1FadeIconState extends ConsumerState<Level1FadeIcon>
         if (status == AnimationStatus.completed) {
           // 5 秒到，出队下一条
           ref.read(notificationQueueProvider.notifier).completeCurrent();
-          widget.onComplete();
         }
       });
 

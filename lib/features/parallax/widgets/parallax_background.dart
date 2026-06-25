@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../shared/widgets/scrolling_world.dart';
+import 'scrolling_world.dart';
 
 /// 视差背景（Layer 1：世界远景）
 ///

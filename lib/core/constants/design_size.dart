@@ -24,10 +24,6 @@ class AppFonts {
   /// 像素字体（Press Start 2P），用于英文/数字（HUD 时间、PAUSE 等）
   static const String pixel = 'PixelFont';
 
-  /// 中文系统字体 fallback（加粗模拟像素感）
-  /// 不指定 family 时 Flutter 自动用系统默认字体，这里仅作占位常量。
-  static const String? cjk = null;
-
   /// 通用 fallback 链：像素字体优先，缺失字符（如中文）回退系统字体。
   static const List<String> fallback = [pixel];
 }

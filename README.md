@@ -13,7 +13,7 @@ DeskMario 是一个 16:9 强制横屏 + 全屏 immersive 的桌面摆件（kiosk
 - **6 层视差栈**：氛围滤镜 / 滚动世界 / 天气 / 主角 / HUD / 通知 / 调试面板，语义分层 + 精确 Z-order
 - **整数比视差**：一个 60s `AnimationController` 驱动 background 走 1 panel、ground 走 5 tile（32:5）
 - **Mario 像素动画**：独立原地跑步（360ms 帧切换）+ 上下浮动（180ms），水平定位于屏宽 1/3 视觉焦点
-- **四级通知系统**：L1~L4 由弱到强，L4 强告警触发 `BackdropFilter` 灰度模糊让世界"凝固"
+- **4 个严重度的通知系统**：Severity 1~4 由弱到强，Severity 4 强告警触发 `BackdropFilter` 灰度模糊让世界"凝固"
 - **氛围色温**：`AtmosphericLayer` 全屏色温（昼夜）+ 边缘暗角，覆盖所有 sprite
 - **像素艺术保真**：`FilterQuality.none` 关闭抗锯齿 + `gaplessPlayback` 平移无闪烁
 - **Riverpod 状态管理 + ScreenUtil 屏幕适配**（设计基准 1280×720）
@@ -64,7 +64,7 @@ python3 tools/process_panel1.py <in.png> <out.png>   # 替换 panel 1 顶部 32p
 | L1   | `WeatherLayer`       | 天气效果：雨/雪/雾/闪电（当前为占位）               |
 | L2   | `PositionedMario`    | 主角 Mario（独立原地跑步 + 上下浮动）               |
 | L3   | `TimeHud`            | 世界内 UI：顶部时间 HH:MM                           |
-| L4   | `NotificationOverlay`| 业务消息：4 级弱提醒                                 |
+| L4   | `NotificationOverlay`| 业务消息：4 个严重度（S1~S4）的弱提醒                   |
 | L5   | `DebugPanel`         | 系统 UI：右下角齿轮调试面板                         |
 
 实际 children 渲染顺序：`L0 → L1 → L2 → L3 → L4 → [L-1 Atmosphere] → L5`（L-1 是全屏滤镜，必须渲染在 sprite 之上才不被遮住）。
@@ -86,7 +86,6 @@ lib/
 ├── pages/home_page.dart            # 主页（直接挂 LayeredScaffold）
 ├── shared/widgets/                 # 跨 feature 复用的 widget
 │   ├── layered_scaffold.dart       # 6 层 Stack 装配点
-│   ├── scrolling_world.dart        # 滚动世界顶层 + ScrollingMetrics
 │   ├── atmospheric_layer.dart      # L-1 全屏氛围
 │   └── typewriter_text.dart        # 通用打字机
 └── features/                       # 业务功能模块
@@ -133,7 +132,7 @@ AI 协作开发指引见 [AGENTS.md](AGENTS.md)（常驻加载，含真机验证
 - **Step 3** —— 完整 HUD（电量 / 通知数 / 番茄钟等）
 - **Step 4** —— 键盘快捷键（1-4 触发通知、T 切主题）
 - **Step 5** —— 接入真实通知源（飞书 / 系统 / API）
-- **Step 6** —— ✅ L4 强告警的 `BackdropFilter` 灰度模糊（已完成）
+- **Step 6** —— ✅ Severity 4 强告警的 `BackdropFilter` 灰度模糊（已完成）
 - **Step 7** —— L1 WeatherLayer 接入真实天气（雨/雪/雾/闪电）
 
 ---

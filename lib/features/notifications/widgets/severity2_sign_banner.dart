@@ -5,25 +5,23 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/app_theme.dart';
 import '../providers/notification_queue_provider.dart';
 
-/// Level 2：低侵入
+/// Severity 2：低侵入
 ///
-/// 屏幕上方边缘使用 AnimatedPositioned 向下弹出一个带边框的木牌，
-/// 展示一行 Mock 文本，悬停 10 秒后收回边缘之外。
-class Level2SignBanner extends ConsumerStatefulWidget {
-  const Level2SignBanner({
+/// 屏幕上方边缘使用 AnimatedContainer 向下弹出一个带边框的木牌，
+/// 展示一行 Mock 文本，悬停 10 秒后收回边缘之外并自动出队下一条。
+class Severity2SignBanner extends ConsumerStatefulWidget {
+  const Severity2SignBanner({
     super.key,
     required this.text,
-    required this.onComplete,
   });
 
   final String text;
-  final VoidCallback onComplete;
 
   @override
-  ConsumerState<Level2SignBanner> createState() => _Level2SignBannerState();
+  ConsumerState<Severity2SignBanner> createState() => _Severity2SignBannerState();
 }
 
-class _Level2SignBannerState extends ConsumerState<Level2SignBanner> {
+class _Severity2SignBannerState extends ConsumerState<Severity2SignBanner> {
   bool _expanded = false;
 
   @override
@@ -34,16 +32,14 @@ class _Level2SignBannerState extends ConsumerState<Level2SignBanner> {
       if (mounted) setState(() => _expanded = true);
     });
 
-    // 10 秒后收回
+    // 10 秒后收回；收回动画结束后再 complete
     Future.delayed(const Duration(seconds: 10), () {
-      if (mounted) {
-        setState(() => _expanded = false);
-        // 等收回动画结束后再 complete
-        Future.delayed(const Duration(milliseconds: 400), () {
-          ref.read(notificationQueueProvider.notifier).completeCurrent();
-          widget.onComplete();
-        });
-      }
+      if (!mounted) return;
+      setState(() => _expanded = false);
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        ref.read(notificationQueueProvider.notifier).completeCurrent();
+      });
     });
   }
 
