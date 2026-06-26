@@ -2,10 +2,10 @@
 # android-dev 统一入口
 #
 # 提供 DeskMario / Flutter Android 开发的视觉验证高频操作。
-# 设计目标：减少 Claude 在每个 turn 里手写 adb 命令的重复劳动。
+# 设计目标：减少 agent 在每个 turn 里手写 adb 命令的重复劳动。
 #
 # 默认值（写死，方便直接调用；其他设备/包可用 --serial / --pkg 覆盖）：
-#   DEVICE_SERIAL = 1W11833968    # YT3002 东郡狼（横屏摆件调试机）
+#   DEVICE_SERIAL = HGR496PP      # TB300FU（横屏摆件调试机）
 #   APP_PKG       = com.example.desk_mario
 #   APP_ACTIVITY  = .MainActivity
 #
@@ -32,11 +32,11 @@
 set -euo pipefail
 
 # === 默认配置（项目级硬编码） =====================================
-DEFAULT_SERIAL="${DESK_MARIO_SERIAL:-1W11833968}"
+DEFAULT_SERIAL="${DESK_MARIO_SERIAL:-HGR496PP}"
 DEFAULT_PKG="${DESK_MARIO_PKG:-com.example.desk_mario}"
 DEFAULT_ACTIVITY="${DESK_MARIO_ACTIVITY:-.MainActivity}"
 
-# === 颜色（仅 stderr，方便 Claude 区分日志与命令输出） ===========
+# === 颜色（仅 stderr，方便区分日志与命令输出） ====================
 RED=$'\033[0;31m'; GRN=$'\033[0;32m'; YLW=$'\033[0;33m'; NC=$'\033[0m'
 log_err()  { echo "${RED}[adb.sh]${NC} $*" >&2; }
 log_ok()   { echo "${GRN}[adb.sh]${NC} $*" >&2; }
@@ -98,7 +98,7 @@ cmd_screenshot() {
     exit 1
   fi
   log_ok "截图已保存：${out} (${size} bytes)"
-  echo "${out}"   # stdout 给 Claude 后续 Read 用
+  echo "${out}"   # stdout 给后续读取/查看图片用
 }
 
 cmd_logcat() {

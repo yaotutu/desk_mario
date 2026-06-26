@@ -53,7 +53,6 @@ test/failures/
 # claude-mem 插件自动生成的 memory cache 文件（散布在各子目录，不是项目业务文件）
 **/CLAUDE.md
 
-# agent / IDE 工具本地配置（每个开发者本地有差异，不入库）
-.agents/
+# IDE 工具本地配置（每个开发者本地有差异，不入库）
 .opencode/
 .omo/
