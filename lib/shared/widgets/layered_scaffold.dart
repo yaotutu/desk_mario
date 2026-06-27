@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/character/widgets/mario_widget.dart';
+import '../../features/creative_mode/widgets/mode_switcher.dart';
 import '../../features/debug/widgets/debug_panel.dart';
 import '../../features/hud/widgets/time_hud.dart';
 import '../../features/notifications/providers/background_dim_provider.dart';
@@ -24,7 +25,7 @@ import 'atmospheric_layer.dart';
 /// | L2     | [PositionedMario]    | 主角 Mario（独立原地跑步 + 上下浮动）        |
 /// | L3     | [TimeHud]            | 世界内 UI：顶部时间 HH:MM                   |
 /// | L4     | [NotificationOverlay]| 业务消息：4 级弱提醒（L1~L4）               |
-/// | L5     | [DebugPanel]         | 系统 UI：右下角齿轮调试面板                 |
+/// | L5     | [ModeSwitcher]/[DebugPanel] | 系统 UI：模式切换 + 调试面板        |
 ///
 /// **Z-order 实现细节（重要）**：
 /// Flutter 的 [Stack] 渲染顺序是 children[0]（最底）→ children[N-1]（最顶）。
@@ -34,7 +35,7 @@ import 'atmospheric_layer.dart';
 ///
 /// 所以 children 的实际顺序是：
 /// ```
-/// L0 (最底) → L1 → L2 → L3 → L-1 Atmosphere → [_DimOverlay*] → L4 Notification → L5 DebugPanel (最顶)
+/// L0 (最底) → L1 → L2 → L3 → L-1 Atmosphere → [_DimOverlay*] → L4 Notification → L5 ModeSwitcher → L5 DebugPanel (最顶)
 /// ```
 /// 也就是说 [AtmosphericLayer] 的**语义层号**是 L-1（最底），但**渲染
 /// Z-order**在 L4 之后；通过 [IgnorePointer] 确保它不影响 L5 DebugPanel
@@ -85,6 +86,9 @@ class LayeredScaffold extends ConsumerWidget {
 
           // L4 Notification（业务消息层；L4 触发时文字保持清晰彩色）
           const NotificationOverlay(),
+
+          // L5 System（用户模式切换；放在 DebugPanel 下方，避免开发面板被盖住）
+          const ModeSwitcher(),
 
           // L5 System（系统 UI：调试面板，必须在最顶）
           const DebugPanel(),

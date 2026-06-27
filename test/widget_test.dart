@@ -10,6 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
+import 'package:desk_mario/features/creative_mode/providers/creative_mode_provider.dart';
+import 'package:desk_mario/features/creative_mode/widgets/mode_switcher.dart';
 import 'package:desk_mario/features/hud/widgets/time_hud.dart';
 
 void main() {
@@ -42,6 +44,9 @@ void main() {
     expect(find.byKey(TimeHud.statusObjectKey), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('weather-layer')), findsOneWidget);
 
+    // L5 创意模式按钮应在 Debug 齿轮左侧常驻。
+    expect(find.byKey(ModeSwitcher.collapsedKey), findsOneWidget);
+
     // 调试齿轮图标应存在（collapsed 状态）
     expect(find.byIcon(Icons.settings), findsOneWidget);
   });
@@ -62,6 +67,44 @@ void main() {
       ),
     );
     await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      find.descendant(
+        of: find.byType(TimeHud),
+        matching: find.byType(DecoratedBox),
+      ),
+      findsNothing,
+    );
+  });
+
+  testWidgets('Diorama mode renders real prop-backed HUD objects', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(DesignSize.width, DesignSize.height),
+        minTextAdapt: true,
+        builder: (context, child) => ProviderScope(
+          overrides: [
+            creativeModeProvider.overrideWith((ref) {
+              return CreativeModeNotifier()
+                ..setManualMode(CreativeMode.diorama);
+            }),
+          ],
+          child: const DeskMarioApp(),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.byKey(TimeHud.dioramaPropsKey), findsOneWidget);
+    expect(find.byKey(TimeHud.dioramaWeatherPipeKey), findsOneWidget);
+    expect(find.byKey(TimeHud.dioramaMessageFlagKey), findsOneWidget);
 
     expect(
       find.descendant(

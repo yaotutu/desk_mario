@@ -19,6 +19,13 @@ const _goldenImageAssets = [
   'assets/sprites/mario_big_run_f2.png',
   'assets/sprites/starman_f0.png',
   'assets/sprites/coin_f0.png',
+  'assets/sprites/cloud_small.png',
+  'assets/sprites/block_question_f0.png',
+  'assets/sprites/block_question_f1.png',
+  'assets/sprites/block_brick.png',
+  'assets/sprites/pipe_tall.png',
+  'assets/sprites/flagpole.png',
+  'assets/sprites/castle.png',
 ];
 
 Future<void> _loadAppFonts() async {

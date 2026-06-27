@@ -13,7 +13,9 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
+import 'package:desk_mario/features/creative_mode/providers/creative_mode_provider.dart';
 import 'package:desk_mario/features/hud/widgets/time_hud.dart';
+import 'package:desk_mario/features/notifications/widgets/notification_overlay.dart';
 import 'package:desk_mario/features/weather/providers/weather_provider.dart';
 import 'package:desk_mario/shared/widgets/typewriter_text.dart';
 
@@ -25,6 +27,17 @@ Widget _wrapApp() {
   );
 }
 
+Widget _wrapAppWithContainer(ProviderContainer container) {
+  return UncontrolledProviderScope(
+    container: container,
+    child: ScreenUtilInit(
+      designSize: const Size(DesignSize.width, DesignSize.height),
+      minTextAdapt: true,
+      builder: (context, child) => const DeskMarioApp(),
+    ),
+  );
+}
+
 Future<void> _pumpApp(WidgetTester tester) async {
   tester.view.physicalSize =
       const Size(DesignSize.width, DesignSize.height) * 2.0;
@@ -32,6 +45,20 @@ Future<void> _pumpApp(WidgetTester tester) async {
   addTearDown(tester.view.resetPhysicalSize);
 
   await tester.pumpWidget(_wrapApp());
+  await tester.pump(const Duration(milliseconds: 100));
+  await tester.pump(const Duration(milliseconds: 100));
+}
+
+Future<void> _pumpAppWithContainer(
+  WidgetTester tester,
+  ProviderContainer container,
+) async {
+  tester.view.physicalSize =
+      const Size(DesignSize.width, DesignSize.height) * 2.0;
+  tester.view.devicePixelRatio = 2.0;
+  addTearDown(tester.view.resetPhysicalSize);
+
+  await tester.pumpWidget(_wrapAppWithContainer(container));
   await tester.pump(const Duration(milliseconds: 100));
   await tester.pump(const Duration(milliseconds: 100));
 }
@@ -108,6 +135,64 @@ void main() {
       expect(find.byIcon(Icons.notifications), findsOneWidget);
       // L2 木牌此时还没出现（在队列里等）
       expect(find.byIcon(Icons.campaign), findsNothing);
+    });
+  });
+
+  group('Theater 创意模式', () {
+    testWidgets('手动 Theater 模式无消息时显示舞台待命道具', (tester) async {
+      final container = ProviderContainer();
+      container
+          .read(creativeModeProvider.notifier)
+          .setManualMode(CreativeMode.theater);
+
+      await _pumpAppWithContainer(tester, container);
+
+      expect(
+        find.byKey(NotificationOverlay.theaterIdleHintKey),
+        findsOneWidget,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      container.dispose();
+    });
+
+    testWidgets('Diorama 下触发 L3 临时切到 Theater 并在结束后恢复', (tester) async {
+      final container = ProviderContainer();
+      container
+          .read(creativeModeProvider.notifier)
+          .setManualMode(CreativeMode.diorama);
+
+      await _pumpAppWithContainer(tester, container);
+
+      expect(
+        container.read(creativeModeProvider).effectiveMode,
+        CreativeMode.diorama,
+      );
+
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tester.tap(find.text('Test L3'));
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(
+        container.read(creativeModeProvider).effectiveMode,
+        CreativeMode.theater,
+      );
+      expect(
+        find.byKey(NotificationOverlay.theaterStageAccentKey),
+        findsOneWidget,
+      );
+
+      await tester.pump(const Duration(seconds: 7));
+
+      expect(
+        container.read(creativeModeProvider).effectiveMode,
+        CreativeMode.diorama,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      container.dispose();
     });
   });
 
