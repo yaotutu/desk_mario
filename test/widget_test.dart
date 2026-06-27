@@ -140,16 +140,40 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.byKey(TimeHud.dioramaPropsKey), findsOneWidget);
-    expect(find.byKey(TimeHud.dioramaWeatherPipeKey), findsOneWidget);
+    expect(find.byKey(TimeHud.dioramaWeatherBlockKey), findsOneWidget);
     expect(find.byKey(TimeHud.dioramaMessageFlagKey), findsOneWidget);
     expect(find.byKey(TimeHud.dioramaTimeCastleKey), findsOneWidget);
     expect(find.text('NIGHT'), findsWidgets);
     expect(find.text('SNOW -2C'), findsWidgets);
 
-    final pipe = _assetImageInDiorama(tester, 'assets/sprites/pipe_tall.png');
-    expect(pipe.width, greaterThanOrEqualTo(94));
-    expect(pipe.height, greaterThanOrEqualTo(126));
-    _expectAspectRatio(pipe, 96 / 128);
+    final weatherBlocks = tester
+        .widgetList<Image>(
+          find.descendant(
+            of: find.byKey(TimeHud.dioramaWeatherBlockKey),
+            matching: find.byType(Image),
+          ),
+        )
+        .where((image) {
+          final provider = image.image;
+          return provider is AssetImage &&
+              (provider.assetName == 'assets/sprites/block_question_f0.png' ||
+                  provider.assetName == 'assets/sprites/block_brick.png' ||
+                  provider.assetName == 'assets/sprites/cloud_small.png');
+        });
+    expect(weatherBlocks.length, greaterThanOrEqualTo(3));
+    expect(
+      tester.widgetList<Image>(
+        find.descendant(
+          of: find.byKey(TimeHud.dioramaPropsKey),
+          matching: find.byType(Image),
+        ),
+      ).any((image) {
+        final provider = image.image;
+        return provider is AssetImage &&
+            provider.assetName == 'assets/sprites/pipe_tall.png';
+      }),
+      isFalse,
+    );
 
     final castle = _assetImageInDiorama(tester, 'assets/sprites/castle.png');
     expect(castle.width, greaterThanOrEqualTo(84));

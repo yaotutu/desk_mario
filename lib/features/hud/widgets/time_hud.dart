@@ -25,6 +25,9 @@ class TimeHud extends ConsumerWidget {
   static const dioramaWeatherPipeKey = ValueKey<String>(
     'world-hud-diorama-weather-pipe',
   );
+  static const dioramaWeatherBlockKey = ValueKey<String>(
+    'world-hud-diorama-weather-block',
+  );
   static const dioramaMessageFlagKey = ValueKey<String>(
     'world-hud-diorama-message-flag',
   );
@@ -244,7 +247,7 @@ class _DioramaDataProps extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _PipeWeatherProp(label: weatherLabel),
+              _WeatherBlockProp(label: weatherLabel),
               SizedBox(width: 28.w),
               _FlagMessageProp(label: messageLabel),
             ],
@@ -260,15 +263,15 @@ class _DioramaDataProps extends StatelessWidget {
   }
 }
 
-class _PipeWeatherProp extends StatelessWidget {
-  const _PipeWeatherProp({required this.label});
+class _WeatherBlockProp extends StatelessWidget {
+  const _WeatherBlockProp({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      key: TimeHud.dioramaWeatherPipeKey,
+      key: TimeHud.dioramaWeatherBlockKey,
       width: 156.w,
       height: 178.h,
       child: Stack(
@@ -280,25 +283,52 @@ class _PipeWeatherProp extends StatelessWidget {
             child: _OutlinedPixelText(text: label, fontSize: 10),
           ),
           Positioned(
-            bottom: 106.h,
+            bottom: 108.h,
             child: Image.asset(
               'assets/sprites/cloud_small.png',
-              width: 84.w,
-              height: 36.h,
+              width: 98.w,
+              height: 42.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
             ),
           ),
           Positioned(
-            bottom: 0,
-            child: Image.asset(
-              'assets/sprites/pipe_tall.png',
-              width: 96.w,
-              height: 128.h,
-              filterQuality: FilterQuality.none,
-              gaplessPlayback: true,
-              fit: BoxFit.contain,
+            bottom: 0.h,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    _DioramaSprite(
+                      asset: 'assets/sprites/block_question_f0.png',
+                      width: 42,
+                      height: 42,
+                    ),
+                    _DioramaSprite(
+                      asset: 'assets/sprites/block_brick.png',
+                      width: 42,
+                      height: 42,
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    _DioramaSprite(
+                      asset: 'assets/sprites/block_brick.png',
+                      width: 42,
+                      height: 42,
+                    ),
+                    _DioramaSprite(
+                      asset: 'assets/sprites/block_brick.png',
+                      width: 42,
+                      height: 42,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ],
@@ -391,6 +421,30 @@ class _TimeCastleProp extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DioramaSprite extends StatelessWidget {
+  const _DioramaSprite({
+    required this.asset,
+    required this.width,
+    required this.height,
+  });
+
+  final String asset;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      asset,
+      width: width.w,
+      height: height.h,
+      filterQuality: FilterQuality.none,
+      gaplessPlayback: true,
+      fit: BoxFit.contain,
     );
   }
 }
