@@ -31,6 +31,12 @@ Image _assetImageInDiorama(WidgetTester tester, String assetName) {
       });
 }
 
+void _expectAspectRatio(Image image, double ratio) {
+  expect(image.width, isNotNull);
+  expect(image.height, isNotNull);
+  expect(image.width! / image.height!, closeTo(ratio, 0.02));
+}
+
 void main() {
   testWidgets('DeskMario app renders home page smoke test', (
     WidgetTester tester,
@@ -141,16 +147,19 @@ void main() {
     expect(find.text('SNOW -2C'), findsWidgets);
 
     final pipe = _assetImageInDiorama(tester, 'assets/sprites/pipe_tall.png');
-    expect(pipe.width, greaterThanOrEqualTo(88));
-    expect(pipe.height, greaterThanOrEqualTo(116));
+    expect(pipe.width, greaterThanOrEqualTo(94));
+    expect(pipe.height, greaterThanOrEqualTo(126));
+    _expectAspectRatio(pipe, 96 / 128);
 
     final castle = _assetImageInDiorama(tester, 'assets/sprites/castle.png');
-    expect(castle.width, greaterThanOrEqualTo(88));
+    expect(castle.width, greaterThanOrEqualTo(84));
     expect(castle.height, greaterThanOrEqualTo(152));
+    _expectAspectRatio(castle, 86 / 178);
 
     final coin = _assetImageInDiorama(tester, 'assets/sprites/coin_f0.png');
-    expect(coin.width, greaterThanOrEqualTo(32));
-    expect(coin.height, greaterThanOrEqualTo(42));
+    expect(coin.width, greaterThanOrEqualTo(38));
+    expect(coin.height, greaterThanOrEqualTo(52));
+    _expectAspectRatio(coin, 10 / 14);
 
     expect(
       find.descendant(

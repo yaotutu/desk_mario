@@ -283,8 +283,8 @@ class _PipeWeatherProp extends StatelessWidget {
             bottom: 106.h,
             child: Image.asset(
               'assets/sprites/cloud_small.png',
-              width: 104.w,
-              height: 44.h,
+              width: 84.w,
+              height: 36.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -294,8 +294,8 @@ class _PipeWeatherProp extends StatelessWidget {
             bottom: 0,
             child: Image.asset(
               'assets/sprites/pipe_tall.png',
-              width: 90.w,
-              height: 120.h,
+              width: 96.w,
+              height: 128.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -327,8 +327,8 @@ class _FlagMessageProp extends StatelessWidget {
             bottom: 0,
             child: Image.asset(
               'assets/sprites/flagpole.png',
-              width: 22.w,
-              height: 166.h,
+              width: 24.w,
+              height: 178.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -342,8 +342,8 @@ class _FlagMessageProp extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/sprites/coin_f0.png',
-                  width: 34.r,
-                  height: 46.r,
+                  width: 40.r,
+                  height: 56.r,
                   filterQuality: FilterQuality.none,
                   gaplessPlayback: true,
                   fit: BoxFit.contain,
@@ -382,7 +382,7 @@ class _TimeCastleProp extends StatelessWidget {
             bottom: 0,
             child: Image.asset(
               'assets/sprites/castle.png',
-              width: 112.w,
+              width: 86.w,
               height: 178.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
