@@ -4,9 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../core/constants/design_size.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../creative_mode/providers/creative_mode_provider.dart';
 import '../../notifications/providers/notification_queue_provider.dart';
-import '../../weather/providers/weather_provider.dart';
+import '../../world_state/providers/world_state_loop_provider.dart';
 import '../providers/clock_provider.dart';
 
 /// 顶部时间 HUD（Layer 3）。
@@ -29,12 +28,15 @@ class TimeHud extends ConsumerWidget {
   static const dioramaMessageFlagKey = ValueKey<String>(
     'world-hud-diorama-message-flag',
   );
+  static const dioramaTimeCastleKey = ValueKey<String>(
+    'world-hud-diorama-time-castle',
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = ref.watch(clockProvider);
-    final weather = ref.watch(weatherProvider);
-    final creativeMode = ref.watch(creativeModeProvider).effectiveMode;
+    final world = ref.watch(worldStateLoopProvider);
+    final weather = world.weather;
     final queueState = ref.watch(notificationQueueProvider);
     final pendingCount =
         queueState.queue.length + (queueState.current == null ? 0 : 1);
@@ -98,10 +100,11 @@ class TimeHud extends ConsumerWidget {
             ),
           ),
 
-          if (creativeMode == CreativeMode.diorama)
+          if (world.dioramaDensity == DioramaDensity.inspectable)
             _DioramaDataProps(
               weatherLabel: weather.displayText,
               messageLabel: pendingLabel,
+              timeLabel: world.timePhase.label,
             ),
         ],
       ),
@@ -222,25 +225,37 @@ class _DioramaDataProps extends StatelessWidget {
   const _DioramaDataProps({
     required this.weatherLabel,
     required this.messageLabel,
+    required this.timeLabel,
   });
 
   final String weatherLabel;
   final String messageLabel;
+  final String timeLabel;
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
+    return Stack(
       key: TimeHud.dioramaPropsKey,
-      left: 44.w,
-      bottom: 78.h,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          _PipeWeatherProp(label: weatherLabel),
-          SizedBox(width: 24.w),
-          _FlagMessageProp(label: messageLabel),
-        ],
-      ),
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          left: 44.w,
+          bottom: 78.h,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _PipeWeatherProp(label: weatherLabel),
+              SizedBox(width: 24.w),
+              _FlagMessageProp(label: messageLabel),
+            ],
+          ),
+        ),
+        Positioned(
+          right: 210.w,
+          bottom: 78.h,
+          child: _TimeCastleProp(label: timeLabel),
+        ),
+      ],
     );
   }
 }
@@ -336,6 +351,42 @@ class _FlagMessageProp extends StatelessWidget {
                 SizedBox(height: 5.h),
                 _OutlinedPixelText(text: label, fontSize: 9),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimeCastleProp extends StatelessWidget {
+  const _TimeCastleProp({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      key: TimeHud.dioramaTimeCastleKey,
+      width: 116.w,
+      height: 112.h,
+      child: Stack(
+        clipBehavior: Clip.none,
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned(
+            bottom: 84.h,
+            child: _OutlinedPixelText(text: label, fontSize: 8),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Image.asset(
+              'assets/sprites/castle.png',
+              width: 90.w,
+              height: 80.h,
+              filterQuality: FilterQuality.none,
+              gaplessPlayback: true,
+              fit: BoxFit.contain,
             ),
           ),
         ],

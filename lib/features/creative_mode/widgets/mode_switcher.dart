@@ -36,16 +36,25 @@ class _ModeSwitcherState extends ConsumerState<ModeSwitcher> {
   bool _expanded = false;
 
   void _cycleMode() {
+    if (ref.read(creativeModeProvider).temporaryLocked) return;
+
     ref.read(creativeModeProvider.notifier).cycleManualMode();
     if (_expanded) setState(() => _expanded = false);
   }
 
   void _selectMode(CreativeMode mode) {
+    if (ref.read(creativeModeProvider).temporaryLocked) {
+      setState(() => _expanded = false);
+      return;
+    }
+
     ref.read(creativeModeProvider.notifier).setManualMode(mode);
     setState(() => _expanded = false);
   }
 
   void _openChoices() {
+    if (ref.read(creativeModeProvider).temporaryLocked) return;
+
     setState(() => _expanded = true);
   }
 

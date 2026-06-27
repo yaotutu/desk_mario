@@ -22,11 +22,7 @@ Future<void> main() async {
     overlays: [],
   );
 
-  runApp(
-    ProviderScope(
-      child: DeskMarioBootstrap(child: const DeskMarioApp()),
-    ),
-  );
+  runApp(ProviderScope(child: DeskMarioBootstrap(child: const DeskMarioApp())));
 }
 
 /// ScreenUtil 包装（在本文件内做一层封装，便于全局统一 designSize）

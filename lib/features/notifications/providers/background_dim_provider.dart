@@ -9,4 +9,3 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// L4 Notification 文字（PAUSE / 解除告警）和 L5 DebugPanel **不**被
 /// 覆盖，保持清晰彩色以保证可读性。
 final backgroundDimProvider = StateProvider<bool>((ref) => false);
-

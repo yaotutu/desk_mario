@@ -28,10 +28,8 @@ class _Severity1FadeIconState extends ConsumerState<Severity1FadeIcon>
   void initState() {
     super.initState();
 
-    _lifeCtrl = AnimationController(
-      vsync: this,
-      duration: _totalLife,
-    )..addStatusListener((status) {
+    _lifeCtrl = AnimationController(vsync: this, duration: _totalLife)
+      ..addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           // 5 秒到，出队下一条
           ref.read(notificationQueueProvider.notifier).completeCurrent();
@@ -43,9 +41,10 @@ class _Severity1FadeIconState extends ConsumerState<Severity1FadeIcon>
       duration: const Duration(milliseconds: 800),
     )..repeat(reverse: true);
 
-    _breath = Tween<double>(begin: 0.3, end: 1.0).animate(
-      CurvedAnimation(parent: _breathCtrl, curve: Curves.easeInOut),
-    );
+    _breath = Tween<double>(
+      begin: 0.3,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _breathCtrl, curve: Curves.easeInOut));
 
     // 500ms 后淡入完成开始呼吸，最后 500ms 淡出
     _lifeCtrl.forward();

@@ -11,6 +11,8 @@
 - `themeModeProvider`（StateProvider\<ThemeMode\>）：主题模式，默认 `ThemeMode.system`；想知道当前是否黑夜直接 `Theme.of(context).brightness`，不要单独搞一个 `isDarkProvider`
 - `clockProvider`（StateNotifierProvider）：当前时间，对齐整分钟 tick
 - `creativeModeProvider`（StateNotifierProvider）：Scene / Theater / Diorama 创意模式；保存用户手动模式和 S3/S4 通知触发的临时 Theater 覆盖，渲染层读取 `effectiveMode`
+- `worldStateLoopProvider`（Provider）：把 weather / clock / notification / backgroundDim / creativeMode 解释成统一世界状态快照；L-1 Atmosphere、L3 Diorama、S4 告警等闭环都读这里，避免各层各自判断后互相冲突
+- `worldTimePhaseOverrideProvider`（StateProvider\<WorldTimePhase?\>）：Debug-only 时间相位覆盖，用于真机快速验证 morning/day/dusk/night 氛围；为 `null` 时回到真实 `clockProvider`
 - `notificationQueueProvider`（StateNotifierProvider）：**串行消息队列**（FIFO），同时只显示一条 `current`，演完调 `completeCurrent()` 出队下一条
 - `backgroundDimProvider`（StateProvider\<bool\>）：Severity 4 强告警专用灰度模糊开关
 

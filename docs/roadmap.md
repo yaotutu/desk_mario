@@ -67,9 +67,11 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 
 **架构预留**：6 层架构中的 L1 Weather 就是为这步预留的。
 
-**单 widget 内可分子层**：比如 RainWidget 内部可同时有"远景雨"（在 L0 之上、L2 之下）和"近景雨滴"（在 L2 之上、L3 之下），通过 widget 内部 `Stack` + 透明度实现。
+**素材规则**：雨滴、雪花、雾层、闪电等粒子/片层必须来自真实 raster 素材，禁止用 `CustomPainter`、几何图形或 SVG 临时绘制。缺素材时只允许通过 `worldStateLoopProvider` 驱动 Atmosphere 色温/暗角、现有真实 sprite 道具和 HUD 文案形成闭环。
 
-**可能依赖**：无（直接用 Flutter 自带的 `CustomPainter` 或 `Animation` 即可）。
+**单 widget 内可分子层**：真实素材入库后，RainWidget 内部可同时有"远景雨"（在 L0 之上、L2 之下）和"近景雨滴"（在 L2 之上、L3 之下），通过 widget 内部 `Stack` + 透明度实现。
+
+**可能依赖**：无。先复用现有 Flutter 动画能力移动真实 raster 素材，不新增依赖。
 
 ---
 

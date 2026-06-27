@@ -5,10 +5,7 @@ import '../models/notification_severity.dart';
 
 /// 消息队列状态
 class NotificationQueueState {
-  const NotificationQueueState({
-    this.queue = const [],
-    this.current,
-  });
+  const NotificationQueueState({this.queue = const [], this.current});
 
   /// 待演出队列（FIFO）
   final List<NotificationMessage> queue;
@@ -32,10 +29,7 @@ class NotificationQueueState {
       return const NotificationQueueState();
     }
     final next = queue.first;
-    return NotificationQueueState(
-      queue: queue.sublist(1),
-      current: next,
-    );
+    return NotificationQueueState(queue: queue.sublist(1), current: next);
   }
 
   NotificationQueueState copyWith({
@@ -44,7 +38,9 @@ class NotificationQueueState {
   }) {
     return NotificationQueueState(
       queue: queue ?? this.queue,
-      current: identical(current, _sentinel) ? this.current : current as NotificationMessage?,
+      current: identical(current, _sentinel)
+          ? this.current
+          : current as NotificationMessage?,
     );
   }
 }
@@ -77,6 +73,5 @@ class NotificationQueueNotifier extends StateNotifier<NotificationQueueState> {
 /// 全局消息队列 Provider
 final notificationQueueProvider =
     StateNotifierProvider<NotificationQueueNotifier, NotificationQueueState>(
-  (ref) => NotificationQueueNotifier(),
-);
-
+      (ref) => NotificationQueueNotifier(),
+    );

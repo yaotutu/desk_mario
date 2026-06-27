@@ -14,9 +14,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
 import 'package:desk_mario/features/creative_mode/providers/creative_mode_provider.dart';
+import 'package:desk_mario/features/hud/providers/clock_provider.dart';
 import 'package:desk_mario/features/hud/widgets/time_hud.dart';
 import 'package:desk_mario/features/notifications/widgets/notification_overlay.dart';
 import 'package:desk_mario/features/weather/providers/weather_provider.dart';
+import 'package:desk_mario/features/world_state/providers/world_state_loop_provider.dart';
 import 'package:desk_mario/shared/widgets/typewriter_text.dart';
 
 Widget _wrapApp() {
@@ -114,6 +116,51 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       expect(find.text('SNOW 18C'), findsWidgets);
+    });
+
+    testWidgets('Debug Panel 可覆盖世界时间相位用于昼夜视觉验证', (tester) async {
+      final container = ProviderContainer(
+        overrides: [
+          clockProvider.overrideWith(
+            (ref) => ClockNotifier(
+              initialTime: DateTime(2026, 1, 1, 12),
+              autoTick: false,
+            ),
+          ),
+        ],
+      );
+
+      await _pumpAppWithContainer(tester, container);
+
+      expect(
+        container.read(worldStateLoopProvider).timePhase,
+        WorldTimePhase.day,
+      );
+
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('Time'), findsOneWidget);
+      expect(find.text('NIGHT'), findsOneWidget);
+
+      await tester.tap(find.text('NIGHT'));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(
+        container.read(worldStateLoopProvider).timePhase,
+        WorldTimePhase.night,
+      );
+
+      await tester.tap(find.text('AUTO'));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(
+        container.read(worldStateLoopProvider).timePhase,
+        WorldTimePhase.day,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      container.dispose();
     });
   });
 

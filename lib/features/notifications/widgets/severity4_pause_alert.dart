@@ -22,7 +22,8 @@ class Severity4PauseAlert extends ConsumerStatefulWidget {
   const Severity4PauseAlert({super.key});
 
   @override
-  ConsumerState<Severity4PauseAlert> createState() => _Severity4PauseAlertState();
+  ConsumerState<Severity4PauseAlert> createState() =>
+      _Severity4PauseAlertState();
 }
 
 class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
@@ -44,9 +45,10 @@ class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
       duration: const Duration(milliseconds: 600),
     )..repeat(reverse: true);
 
-    _blink = Tween<double>(begin: 1.0, end: 0.3).animate(
-      CurvedAnimation(parent: _blinkCtrl, curve: Curves.easeInOut),
-    );
+    _blink = Tween<double>(
+      begin: 1.0,
+      end: 0.3,
+    ).animate(CurvedAnimation(parent: _blinkCtrl, curve: Curves.easeInOut));
   }
 
   @override
@@ -119,8 +121,10 @@ class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
                 style: TextButton.styleFrom(
                   backgroundColor: p.alarmButton,
                   foregroundColor: Colors.white,
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.w, vertical: 14.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 14.h,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(6.r),
                     side: BorderSide(color: Colors.white, width: 2),

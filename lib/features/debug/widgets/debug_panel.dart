@@ -6,6 +6,7 @@ import '../../../core/theme/theme_controller.dart';
 import '../../notifications/models/notification_severity.dart';
 import '../../notifications/providers/notification_queue_provider.dart';
 import '../../weather/providers/weather_provider.dart';
+import '../../world_state/providers/world_state_loop_provider.dart';
 
 /// Debug Panel（右下角隐蔽调试入口）
 ///
@@ -40,6 +41,10 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
     ref.read(weatherProvider.notifier).state = current.copyWith(
       condition: condition,
     );
+  }
+
+  void _setTimePhase(WorldTimePhase? phase) {
+    ref.read(worldTimePhaseOverrideProvider.notifier).state = phase;
   }
 
   @override
@@ -150,6 +155,8 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
               SizedBox(height: 12.h),
               _buildWeatherControls(),
               SizedBox(height: 12.h),
+              _buildTimeControls(),
+              SizedBox(height: 12.h),
               // 主题开关
               Row(
                 mainAxisSize: MainAxisSize.min,
@@ -200,6 +207,39 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
                 condition.label,
                 () => _setWeather(condition),
                 active: current == condition,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTimeControls() {
+    final current = ref.watch(worldTimePhaseOverrideProvider);
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          'Time',
+          style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+        ),
+        SizedBox(height: 8.h),
+        Wrap(
+          spacing: 8.w,
+          runSpacing: 8.h,
+          children: [
+            _buildBtn(
+              'AUTO',
+              () => _setTimePhase(null),
+              active: current == null,
+            ),
+            for (final phase in WorldTimePhase.values)
+              _buildBtn(
+                phase.label,
+                () => _setTimePhase(phase),
+                active: current == phase,
               ),
           ],
         ),

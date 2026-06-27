@@ -12,7 +12,10 @@ import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
 import 'package:desk_mario/features/creative_mode/providers/creative_mode_provider.dart';
 import 'package:desk_mario/features/creative_mode/widgets/mode_switcher.dart';
+import 'package:desk_mario/features/hud/providers/clock_provider.dart';
 import 'package:desk_mario/features/hud/widgets/time_hud.dart';
+import 'package:desk_mario/features/weather/providers/weather_provider.dart';
+import 'package:desk_mario/shared/widgets/atmospheric_layer.dart';
 
 void main() {
   testWidgets('DeskMario app renders home page smoke test', (
@@ -43,6 +46,8 @@ void main() {
     expect(find.byKey(TimeHud.weatherObjectKey), findsOneWidget);
     expect(find.byKey(TimeHud.statusObjectKey), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('weather-layer')), findsOneWidget);
+    expect(find.byKey(AtmosphericLayer.temperatureOverlayKey), findsOneWidget);
+    expect(find.byKey(AtmosphericLayer.vignetteOverlayKey), findsOneWidget);
 
     // L5 创意模式按钮应在 Debug 齿轮左侧常驻。
     expect(find.byKey(ModeSwitcher.collapsedKey), findsOneWidget);
@@ -91,6 +96,18 @@ void main() {
         minTextAdapt: true,
         builder: (context, child) => ProviderScope(
           overrides: [
+            clockProvider.overrideWith(
+              (ref) => ClockNotifier(
+                initialTime: DateTime(2026, 1, 1, 23, 5),
+                autoTick: false,
+              ),
+            ),
+            weatherProvider.overrideWith(
+              (ref) => const WeatherSnapshot(
+                condition: WeatherCondition.snow,
+                temperatureC: -2,
+              ),
+            ),
             creativeModeProvider.overrideWith((ref) {
               return CreativeModeNotifier()
                 ..setManualMode(CreativeMode.diorama);
@@ -105,6 +122,9 @@ void main() {
     expect(find.byKey(TimeHud.dioramaPropsKey), findsOneWidget);
     expect(find.byKey(TimeHud.dioramaWeatherPipeKey), findsOneWidget);
     expect(find.byKey(TimeHud.dioramaMessageFlagKey), findsOneWidget);
+    expect(find.byKey(TimeHud.dioramaTimeCastleKey), findsOneWidget);
+    expect(find.text('NIGHT'), findsWidgets);
+    expect(find.text('SNOW -2C'), findsWidgets);
 
     expect(
       find.descendant(

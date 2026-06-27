@@ -10,15 +10,13 @@ import '../providers/notification_queue_provider.dart';
 /// 屏幕上方边缘使用 AnimatedContainer 向下弹出一个带边框的木牌，
 /// 展示一行 Mock 文本，悬停 10 秒后收回边缘之外并自动出队下一条。
 class Severity2SignBanner extends ConsumerStatefulWidget {
-  const Severity2SignBanner({
-    super.key,
-    required this.text,
-  });
+  const Severity2SignBanner({super.key, required this.text});
 
   final String text;
 
   @override
-  ConsumerState<Severity2SignBanner> createState() => _Severity2SignBannerState();
+  ConsumerState<Severity2SignBanner> createState() =>
+      _Severity2SignBannerState();
 }
 
 class _Severity2SignBannerState extends ConsumerState<Severity2SignBanner> {

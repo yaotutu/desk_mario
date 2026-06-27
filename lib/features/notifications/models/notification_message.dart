@@ -5,11 +5,7 @@ import 'notification_severity.dart';
 /// 单条消息（不可变值对象）
 @immutable
 class NotificationMessage {
-  const NotificationMessage({
-    required this.severity,
-    this.text,
-    this.id,
-  });
+  const NotificationMessage({required this.severity, this.text, this.id});
 
   /// 构造一条默认（Mock）消息
   ///
@@ -30,11 +26,7 @@ class NotificationMessage {
     required int id,
     String? text,
   }) {
-    return NotificationMessage(
-      severity: severity,
-      text: text,
-      id: id,
-    );
+    return NotificationMessage(severity: severity, text: text, id: id);
   }
 
   final NotificationSeverity severity;
@@ -66,4 +58,3 @@ class NotificationMessage {
 /// 但测试间会共享——同进程内多次 `NotificationMessage.defaults`
 /// 调用 id 不会重复。改用 Provider 注入可让测试可重置，但当前规模下不必要。
 int _seq = 0;
-

@@ -69,15 +69,19 @@ class _TypewriterTextState extends State<TypewriterText> {
 
   @override
   Widget build(BuildContext context) {
-    final style = widget.style ??
+    final style =
+        widget.style ??
         Theme.of(context).textTheme.bodyLarge?.copyWith(
-              fontSize: 22.sp,
-              height: 1.6,
-              color: Colors.white,
-            );
+          fontSize: 22.sp,
+          height: 1.6,
+          color: Colors.white,
+        );
 
     // 当前显示的文本（substring 安全）
-    final visible = widget.text.substring(0, _shown.clamp(0, widget.text.length));
+    final visible = widget.text.substring(
+      0,
+      _shown.clamp(0, widget.text.length),
+    );
 
     return RichText(
       text: TextSpan(
@@ -87,9 +91,7 @@ class _TypewriterTextState extends State<TypewriterText> {
           if (_shown < widget.text.length)
             TextSpan(
               text: '_',
-              style: (style ?? const TextStyle()).copyWith(
-                color: Colors.amber,
-              ),
+              style: (style ?? const TextStyle()).copyWith(color: Colors.amber),
             ),
         ],
       ),

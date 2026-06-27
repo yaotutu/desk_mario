@@ -11,10 +11,7 @@ import '../providers/notification_queue_provider.dart';
 /// 屏幕底部平滑升起一个半透明深色对话框，
 /// 打字机逐字显示文本，完成后停留 5 秒淡出并自动出队下一条。
 class Severity3TypewriterDialog extends ConsumerStatefulWidget {
-  const Severity3TypewriterDialog({
-    super.key,
-    required this.text,
-  });
+  const Severity3TypewriterDialog({super.key, required this.text});
 
   final String text;
 

@@ -91,4 +91,36 @@ void main() {
     expect(find.byKey(ModeSwitcher.expandedKey), findsNothing);
     expect(find.byKey(ModeSwitcher.collapsedKey), findsOneWidget);
   });
+
+  testWidgets('locked temporary Theater mode blocks manual switching', (
+    WidgetTester tester,
+  ) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container
+        .read(creativeModeProvider.notifier)
+        .enterTemporary(
+          CreativeMode.theater,
+          reason: CreativeModeTemporaryReason.notification,
+          locked: true,
+        );
+
+    await _pumpModeSwitcher(tester, container);
+
+    await tester.tap(find.byKey(ModeSwitcher.collapsedKey));
+    await tester.pump(const Duration(milliseconds: 180));
+
+    expect(container.read(creativeModeProvider).manualMode, CreativeMode.scene);
+    expect(
+      container.read(creativeModeProvider).effectiveMode,
+      CreativeMode.theater,
+    );
+    expect(container.read(creativeModeProvider).temporaryLocked, isTrue);
+
+    await tester.longPress(find.byKey(ModeSwitcher.collapsedKey));
+    await tester.pump(const Duration(milliseconds: 220));
+
+    expect(find.byKey(ModeSwitcher.expandedKey), findsNothing);
+  });
 }
