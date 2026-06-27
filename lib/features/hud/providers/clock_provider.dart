@@ -11,8 +11,11 @@ final clockProvider = StateNotifierProvider<ClockNotifier, DateTime>((ref) {
 });
 
 class ClockNotifier extends StateNotifier<DateTime> {
-  ClockNotifier() : super(DateTime.now()) {
-    _scheduleNextMinute();
+  ClockNotifier({DateTime? initialTime, bool autoTick = true})
+    : super(initialTime ?? DateTime.now()) {
+    if (autoTick) {
+      _scheduleNextMinute();
+    }
   }
 
   Timer? _timer;

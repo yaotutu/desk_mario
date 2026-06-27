@@ -13,6 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
+import 'package:desk_mario/features/hud/widgets/time_hud.dart';
+import 'package:desk_mario/features/weather/providers/weather_provider.dart';
 import 'package:desk_mario/shared/widgets/typewriter_text.dart';
 
 Widget _wrapApp() {
@@ -39,8 +41,12 @@ void main() {
     testWidgets('显示时间 HUD 和调试齿轮', (tester) async {
       await _pumpApp(tester);
 
-      // 时间 HUD（HH:MM，含冒号）
-      expect(find.textContaining(':'), findsWidgets);
+      // 顶部 NES HUD
+      expect(find.byKey(TimeHud.clockKey), findsOneWidget);
+      expect(find.byKey(TimeHud.weatherKey), findsOneWidget);
+      expect(find.byKey(TimeHud.statusKey), findsOneWidget);
+      expect(find.byKey(TimeHud.weatherObjectKey), findsOneWidget);
+      expect(find.byKey(TimeHud.statusObjectKey), findsOneWidget);
       // 调试齿轮（collapsed 状态）
       expect(find.byIcon(Icons.settings), findsOneWidget);
       // 未展开时没有 Test 按钮
@@ -67,11 +73,25 @@ void main() {
       // 主题开关（Switch）
       expect(find.byType(Switch), findsOneWidget);
     });
+
+    testWidgets('Debug Panel 可切换天气状态，HUD 文案随之更新', (tester) async {
+      await _pumpApp(tester);
+
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('Weather'), findsOneWidget);
+      expect(find.text(WeatherCondition.rain.label), findsOneWidget);
+
+      await tester.tap(find.text(WeatherCondition.snow.label));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('SNOW 18C'), findsWidgets);
+    });
   });
 
   group('消息队列串行', () {
-    testWidgets('连续点击多个 Test，消息排队不重叠（同时只有一个 current）',
-        (tester) async {
+    testWidgets('连续点击多个 Test，消息排队不重叠（同时只有一个 current）', (tester) async {
       await _pumpApp(tester);
 
       // 展开 debug
@@ -156,8 +176,7 @@ void main() {
       await tester.pump(const Duration(seconds: 7));
     });
 
-    testWidgets('打字完成后对话框进入停留期（play_arrow 出现且对话框仍在）',
-        (tester) async {
+    testWidgets('打字完成后对话框进入停留期（play_arrow 出现且对话框仍在）', (tester) async {
       await _pumpApp(tester);
 
       await tester.tap(find.byIcon(Icons.settings));
@@ -222,9 +241,10 @@ void main() {
       await _pumpApp(tester);
 
       // 初始亮度（默认 system → light）
-      final initialBrightness = tester.firstWidget<MaterialApp>(
-        find.byType(MaterialApp),
-      ).theme!.brightness;
+      final initialBrightness = tester
+          .firstWidget<MaterialApp>(find.byType(MaterialApp))
+          .theme!
+          .brightness;
       expect(initialBrightness, Brightness.light);
 
       // 展开 debug
@@ -236,12 +256,12 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
 
       // 主题变黑夜
-      final darkTheme = tester.firstWidget<MaterialApp>(
-        find.byType(MaterialApp),
-      ).darkTheme!;
-      final currentMode = tester.firstWidget<MaterialApp>(
-        find.byType(MaterialApp),
-      ).themeMode;
+      final darkTheme = tester
+          .firstWidget<MaterialApp>(find.byType(MaterialApp))
+          .darkTheme!;
+      final currentMode = tester
+          .firstWidget<MaterialApp>(find.byType(MaterialApp))
+          .themeMode;
       expect(currentMode, ThemeMode.dark);
       expect(darkTheme.brightness, Brightness.dark);
     });

@@ -99,10 +99,7 @@ class _ScrollingWorldState extends ConsumerState<ScrollingWorld>
                       // loose 让 ParallaxBackground (4616×529) 和 GroundLayer
                       // (33*tileWidth × groundHeight) 保持自己的尺寸不被拉伸，
                       // 超出 totalWidth 的部分由外层 ClipRect 裁掉。
-                      children: const [
-                        ParallaxBackground(),
-                        GroundLayer(),
-                      ],
+                      children: const [ParallaxBackground(), GroundLayer()],
                     ),
                   ),
                 ),

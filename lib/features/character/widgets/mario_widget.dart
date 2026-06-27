@@ -89,12 +89,13 @@ class _MarioWidgetState extends State<MarioWidget>
       builder: (context, _) {
         final frameIndex =
             (_frameCtrl.value * MarioWidget._runFrames.length).floor() %
-                MarioWidget._runFrames.length;
+            MarioWidget._runFrames.length;
         return Image.asset(
           MarioWidget._runFrames[frameIndex],
           width: MarioDisplay.width,
           height: MarioDisplay.height,
           filterQuality: FilterQuality.none,
+          gaplessPlayback: true,
           fit: BoxFit.contain,
         );
       },
@@ -117,6 +118,7 @@ class StaticMario extends StatelessWidget {
       width: MarioDisplay.width,
       height: MarioDisplay.height,
       filterQuality: FilterQuality.none,
+      gaplessPlayback: true,
       fit: BoxFit.contain,
     );
   }
@@ -142,10 +144,6 @@ class PositionedMario extends StatelessWidget {
     final bottom = size.height * GroundLayer.groundRatio;
     // 水平方向：Mario 中心点 = 屏宽 / 3
     final left = size.width / 3 - MarioDisplay.width / 2;
-    return Positioned(
-      left: left,
-      bottom: bottom,
-      child: const MarioWidget(),
-    );
+    return Positioned(left: left, bottom: bottom, child: const MarioWidget());
   }
 }

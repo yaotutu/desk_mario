@@ -56,3 +56,6 @@ test/failures/
 # IDE 工具本地配置（每个开发者本地有差异，不入库）
 .opencode/
 .omo/
+
+# Superpowers visual brainstorming sessions are local design scratch space.
+.superpowers/

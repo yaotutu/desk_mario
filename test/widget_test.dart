@@ -10,10 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:desk_mario/app.dart';
 import 'package:desk_mario/core/constants/design_size.dart';
+import 'package:desk_mario/features/hud/widgets/time_hud.dart';
 
 void main() {
-  testWidgets('DeskMario app renders home page smoke test',
-      (WidgetTester tester) async {
+  testWidgets('DeskMario app renders home page smoke test', (
+    WidgetTester tester,
+  ) async {
     // 模拟横屏尺寸（设计基准 1280x720）
     tester.view.physicalSize =
         const Size(DesignSize.width, DesignSize.height) * 2.0;
@@ -32,10 +34,41 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.pump(const Duration(milliseconds: 100));
 
-    // 时间 HUD 应该存在（HH:MM 格式，含冒号）
-    expect(find.textContaining(':'), findsWidgets);
+    // 顶部 NES HUD 应该存在，且不遮挡背景云层。
+    expect(find.byKey(TimeHud.clockKey), findsOneWidget);
+    expect(find.byKey(TimeHud.weatherKey), findsOneWidget);
+    expect(find.byKey(TimeHud.statusKey), findsOneWidget);
+    expect(find.byKey(TimeHud.weatherObjectKey), findsOneWidget);
+    expect(find.byKey(TimeHud.statusObjectKey), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('weather-layer')), findsOneWidget);
 
     // 调试齿轮图标应存在（collapsed 状态）
     expect(find.byIcon(Icons.settings), findsOneWidget);
+  });
+
+  testWidgets('HUD does not paint a full-width background mask', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(DesignSize.width, DesignSize.height),
+        minTextAdapt: true,
+        builder: (context, child) => const ProviderScope(child: DeskMarioApp()),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      find.descendant(
+        of: find.byType(TimeHud),
+        matching: find.byType(DecoratedBox),
+      ),
+      findsNothing,
+    );
   });
 }

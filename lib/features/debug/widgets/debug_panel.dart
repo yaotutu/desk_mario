@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/theme/theme_controller.dart';
 import '../../notifications/models/notification_severity.dart';
 import '../../notifications/providers/notification_queue_provider.dart';
+import '../../weather/providers/weather_provider.dart';
 
 /// Debug Panel（右下角隐蔽调试入口）
 ///
@@ -29,8 +30,16 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
   }
 
   void _toggleTheme(bool isDark) {
-    ref.read(themeModeProvider.notifier).state =
-        isDark ? ThemeMode.dark : ThemeMode.light;
+    ref.read(themeModeProvider.notifier).state = isDark
+        ? ThemeMode.dark
+        : ThemeMode.light;
+  }
+
+  void _setWeather(WeatherCondition condition) {
+    final current = ref.read(weatherProvider);
+    ref.read(weatherProvider.notifier).state = current.copyWith(
+      condition: condition,
+    );
   }
 
   @override
@@ -106,8 +115,11 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
                   SizedBox(width: 8.w),
                   GestureDetector(
                     onTap: _toggle,
-                    child: Icon(Icons.close,
-                        color: Colors.white70, size: 16.sp),
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white70,
+                      size: 16.sp,
+                    ),
                   ),
                 ],
               ),
@@ -118,38 +130,45 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
                 runSpacing: 8.h,
                 children: [
                   _buildBtn(
-                      'Test L1', () => _test(NotificationSeverity.severity1)),
+                    'Test L1',
+                    () => _test(NotificationSeverity.severity1),
+                  ),
                   _buildBtn(
-                      'Test L2', () => _test(NotificationSeverity.severity2)),
+                    'Test L2',
+                    () => _test(NotificationSeverity.severity2),
+                  ),
                   _buildBtn(
-                      'Test L3', () => _test(NotificationSeverity.severity3)),
+                    'Test L3',
+                    () => _test(NotificationSeverity.severity3),
+                  ),
                   _buildBtn(
-                      'Test L4', () => _test(NotificationSeverity.severity4)),
+                    'Test L4',
+                    () => _test(NotificationSeverity.severity4),
+                  ),
                 ],
               ),
+              SizedBox(height: 12.h),
+              _buildWeatherControls(),
               SizedBox(height: 12.h),
               // 主题开关
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(isDark ? Icons.dark_mode : Icons.light_mode,
-                      color: Colors.white70, size: 18.sp),
+                  Icon(
+                    isDark ? Icons.dark_mode : Icons.light_mode,
+                    color: Colors.white70,
+                    size: 18.sp,
+                  ),
                   SizedBox(width: 8.w),
                   Text(
                     isDark ? '黑夜' : '白天',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14.sp,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14.sp),
                   ),
                   SizedBox(width: 8.w),
                   SizedBox(
                     width: 44.w,
                     height: 24.h,
-                    child: Switch(
-                      value: isDark,
-                      onChanged: _toggleTheme,
-                    ),
+                    child: Switch(value: isDark, onChanged: _toggleTheme),
                   ),
                 ],
               ),
@@ -160,15 +179,48 @@ class _DebugPanelState extends ConsumerState<DebugPanel> {
     );
   }
 
-  Widget _buildBtn(String label, VoidCallback onTap) {
+  Widget _buildWeatherControls() {
+    final current = ref.watch(weatherProvider).condition;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          'Weather',
+          style: TextStyle(color: Colors.white70, fontSize: 12.sp),
+        ),
+        SizedBox(height: 8.h),
+        Wrap(
+          spacing: 8.w,
+          runSpacing: 8.h,
+          children: [
+            for (final condition in WeatherCondition.values)
+              _buildBtn(
+                condition.label,
+                () => _setWeather(condition),
+                active: current == condition,
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBtn(String label, VoidCallback onTap, {bool active = false}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.12),
+          color: active
+              ? Colors.white.withValues(alpha: 0.28)
+              : Colors.white.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(4.r),
-          border: Border.all(color: Colors.white30, width: 1),
+          border: Border.all(
+            color: active ? Colors.white70 : Colors.white30,
+            width: 1,
+          ),
         ),
         child: Text(
           label,
