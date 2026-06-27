@@ -239,20 +239,20 @@ class _DioramaDataProps extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         Positioned(
-          left: 44.w,
-          bottom: 78.h,
+          left: 48.w,
+          bottom: 70.h,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               _PipeWeatherProp(label: weatherLabel),
-              SizedBox(width: 24.w),
+              SizedBox(width: 28.w),
               _FlagMessageProp(label: messageLabel),
             ],
           ),
         ),
         Positioned(
-          right: 210.w,
-          bottom: 78.h,
+          right: 190.w,
+          bottom: 70.h,
           child: _TimeCastleProp(label: timeLabel),
         ),
       ],
@@ -269,22 +269,22 @@ class _PipeWeatherProp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       key: TimeHud.dioramaWeatherPipeKey,
-      width: 116.w,
-      height: 126.h,
+      width: 156.w,
+      height: 178.h,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
         children: [
           Positioned(
-            bottom: 84.h,
-            child: _OutlinedPixelText(text: label, fontSize: 8),
+            bottom: 142.h,
+            child: _OutlinedPixelText(text: label, fontSize: 10),
           ),
           Positioned(
-            bottom: 62.h,
+            bottom: 106.h,
             child: Image.asset(
               'assets/sprites/cloud_small.png',
-              width: 66.w,
-              height: 28.h,
+              width: 104.w,
+              height: 44.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -294,8 +294,8 @@ class _PipeWeatherProp extends StatelessWidget {
             bottom: 0,
             child: Image.asset(
               'assets/sprites/pipe_tall.png',
-              width: 58.w,
-              height: 78.h,
+              width: 90.w,
+              height: 120.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -316,19 +316,19 @@ class _FlagMessageProp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       key: TimeHud.dioramaMessageFlagKey,
-      width: 96.w,
-      height: 146.h,
+      width: 124.w,
+      height: 184.h,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomLeft,
         children: [
           Positioned(
-            left: 44.w,
+            left: 62.w,
             bottom: 0,
             child: Image.asset(
               'assets/sprites/flagpole.png',
-              width: 18.w,
-              height: 134.h,
+              width: 22.w,
+              height: 166.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,
@@ -336,20 +336,20 @@ class _FlagMessageProp extends StatelessWidget {
           ),
           Positioned(
             left: 0,
-            bottom: 16.h,
+            bottom: 22.h,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
                   'assets/sprites/coin_f0.png',
-                  width: 24.r,
-                  height: 30.r,
+                  width: 34.r,
+                  height: 46.r,
                   filterQuality: FilterQuality.none,
                   gaplessPlayback: true,
                   fit: BoxFit.contain,
                 ),
-                SizedBox(height: 5.h),
-                _OutlinedPixelText(text: label, fontSize: 9),
+                SizedBox(height: 6.h),
+                _OutlinedPixelText(text: label, fontSize: 10),
               ],
             ),
           ),
@@ -368,22 +368,22 @@ class _TimeCastleProp extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       key: TimeHud.dioramaTimeCastleKey,
-      width: 116.w,
-      height: 112.h,
+      width: 136.w,
+      height: 208.h,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.bottomCenter,
         children: [
           Positioned(
-            bottom: 84.h,
-            child: _OutlinedPixelText(text: label, fontSize: 8),
+            bottom: 180.h,
+            child: _OutlinedPixelText(text: label, fontSize: 10),
           ),
           Positioned(
             bottom: 0,
             child: Image.asset(
               'assets/sprites/castle.png',
-              width: 90.w,
-              height: 80.h,
+              width: 112.w,
+              height: 178.h,
               filterQuality: FilterQuality.none,
               gaplessPlayback: true,
               fit: BoxFit.contain,

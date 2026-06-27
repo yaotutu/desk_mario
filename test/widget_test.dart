@@ -17,6 +17,20 @@ import 'package:desk_mario/features/hud/widgets/time_hud.dart';
 import 'package:desk_mario/features/weather/providers/weather_provider.dart';
 import 'package:desk_mario/shared/widgets/atmospheric_layer.dart';
 
+Image _assetImageInDiorama(WidgetTester tester, String assetName) {
+  return tester
+      .widgetList<Image>(
+        find.descendant(
+          of: find.byKey(TimeHud.dioramaPropsKey),
+          matching: find.byType(Image),
+        ),
+      )
+      .firstWhere((image) {
+        final provider = image.image;
+        return provider is AssetImage && provider.assetName == assetName;
+      });
+}
+
 void main() {
   testWidgets('DeskMario app renders home page smoke test', (
     WidgetTester tester,
@@ -125,6 +139,18 @@ void main() {
     expect(find.byKey(TimeHud.dioramaTimeCastleKey), findsOneWidget);
     expect(find.text('NIGHT'), findsWidgets);
     expect(find.text('SNOW -2C'), findsWidgets);
+
+    final pipe = _assetImageInDiorama(tester, 'assets/sprites/pipe_tall.png');
+    expect(pipe.width, greaterThanOrEqualTo(88));
+    expect(pipe.height, greaterThanOrEqualTo(116));
+
+    final castle = _assetImageInDiorama(tester, 'assets/sprites/castle.png');
+    expect(castle.width, greaterThanOrEqualTo(88));
+    expect(castle.height, greaterThanOrEqualTo(152));
+
+    final coin = _assetImageInDiorama(tester, 'assets/sprites/coin_f0.png');
+    expect(coin.width, greaterThanOrEqualTo(32));
+    expect(coin.height, greaterThanOrEqualTo(42));
 
     expect(
       find.descendant(
