@@ -24,6 +24,24 @@ const _dioramaWeatherBlocksKey = ValueKey<String>(
 const _dioramaMessageFlagKey = ValueKey<String>('diorama-world-message-flag');
 const _dioramaTimeCastleKey = ValueKey<String>('diorama-world-time-castle');
 const _oldHudDioramaPropsKey = ValueKey<String>('world-hud-diorama-props');
+const _weatherCueExpectations = <WeatherCondition, List<String>>{
+  WeatherCondition.clear: [
+    'weather-cue-clear',
+    'assets/sprites/starman_f0.png',
+  ],
+  WeatherCondition.rain: ['weather-cue-rain', 'assets/sprites/cloud_small.png'],
+  WeatherCondition.snow: [
+    'weather-cue-snow',
+    'assets/sprites/cloud_small.png',
+    'assets/sprites/starman_f0.png',
+  ],
+  WeatherCondition.fog: ['weather-cue-fog', 'assets/sprites/cloud_small.png'],
+  WeatherCondition.storm: [
+    'weather-cue-storm',
+    'assets/sprites/block_question_f0.png',
+    'assets/sprites/coin_f0.png',
+  ],
+};
 
 Image _assetImageInDiorama(WidgetTester tester, String assetName) {
   return tester
@@ -43,6 +61,17 @@ void _expectAspectRatio(Image image, double ratio) {
   expect(image.width, isNotNull);
   expect(image.height, isNotNull);
   expect(image.width! / image.height!, closeTo(ratio, 0.02));
+}
+
+List<String> _assetNamesUnder(WidgetTester tester, Finder root) {
+  return tester
+      .widgetList<Image>(
+        find.descendant(of: root, matching: find.byType(Image)),
+      )
+      .map((image) => image.image)
+      .whereType<AssetImage>()
+      .map((provider) => provider.assetName)
+      .toList();
 }
 
 void main() {
@@ -132,6 +161,45 @@ void main() {
       ),
       findsNothing,
     );
+  });
+
+  testWidgets('WeatherLayer renders real sprite cues for every weather state', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    for (final entry in _weatherCueExpectations.entries) {
+      final cueKey = ValueKey<String>(entry.value.first);
+      final expectedAssets = entry.value.skip(1);
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(DesignSize.width, DesignSize.height),
+          minTextAdapt: true,
+          builder: (context, child) => ProviderScope(
+            key: ValueKey<String>('weather-${entry.key.name}'),
+            overrides: [
+              weatherProvider.overrideWith(
+                (ref) =>
+                    WeatherSnapshot(condition: entry.key, temperatureC: 18),
+              ),
+            ],
+            child: const DeskMarioApp(),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final cueFinder = find.byKey(cueKey);
+      expect(cueFinder, findsOneWidget);
+      final assetNames = _assetNamesUnder(tester, cueFinder);
+      for (final asset in expectedAssets) {
+        expect(assetNames, contains(asset));
+      }
+    }
   });
 
   testWidgets('Diorama mode renders real prop-backed world objects', (

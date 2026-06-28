@@ -61,11 +61,19 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 
 ---
 
-## Step 7：L1 WeatherLayer 接入 weatherProvider
+## Step 7：L1 WeatherLayer 接入 weatherProvider ✅（sprite cue 阶段）
 
 **目标**：在 `WeatherLayer` 监听新 `weatherProvider`（雨/雪/雾/闪电/沙尘等状态），按状态派发对应 weather widget。
 
 **架构预留**：6 层架构中的 L1 Weather 就是为这步预留的。
+
+**当前状态**：已接入 `weatherProvider`，并用现有真实 SMB raster sprite 做
+clear/rain/snow/fog/storm 的天气提示物件：
+- clear：starman + coin，表达晴天亮感
+- rain：云朵组，配合 Atmosphere 雨天色温
+- snow：云朵 + starman 小颗粒，表达冷亮雪感
+- fog：多层低透明云朵，表达雾气遮挡
+- storm：云朵 + question block + coin，表达带电风暴
 
 **素材规则**：雨滴、雪花、雾层、闪电等粒子/片层必须来自真实 raster 素材，禁止用 `CustomPainter`、几何图形或 SVG 临时绘制。缺素材时只允许通过 `worldStateLoopProvider` 驱动 Atmosphere 色温/暗角、现有真实 sprite 道具和 HUD 文案形成闭环。
 
