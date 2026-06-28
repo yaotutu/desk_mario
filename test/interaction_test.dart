@@ -349,6 +349,23 @@ void main() {
       expect(find.text('解除告警'), findsOneWidget);
     });
 
+    testWidgets('S4 强告警展示当前告警正文', (tester) async {
+      await _pumpApp(tester);
+
+      await tester.tap(find.byIcon(Icons.settings));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tester.tap(find.text('Test L4'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      expect(find.text('紧急告警'), findsWidgets);
+      expect(
+        find.byKey(NotificationOverlay.theaterStageAccentKey),
+        findsNothing,
+      );
+    });
+
     testWidgets('点解除告警后 PAUSE 消失', (tester) async {
       await _pumpApp(tester);
 

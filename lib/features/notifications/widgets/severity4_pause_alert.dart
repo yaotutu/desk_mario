@@ -19,7 +19,9 @@ import '../providers/notification_queue_provider.dart';
 /// - 关闭 dim
 /// - 出队下一条消息
 class Severity4PauseAlert extends ConsumerStatefulWidget {
-  const Severity4PauseAlert({super.key});
+  const Severity4PauseAlert({super.key, required this.text});
+
+  final String text;
 
   @override
   ConsumerState<Severity4PauseAlert> createState() =>
@@ -77,6 +79,8 @@ class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              const _AlertSpriteAccent(),
+              SizedBox(height: 18.h),
               // 巨型 PAUSE 闪烁
               AnimatedBuilder(
                 animation: _blink,
@@ -114,7 +118,9 @@ class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
                   );
                 },
               ),
-              SizedBox(height: 48.h),
+              SizedBox(height: 18.h),
+              _AlertBody(text: widget.text),
+              SizedBox(height: 34.h),
               // 解除告警按钮
               TextButton(
                 onPressed: _dismiss,
@@ -143,6 +149,96 @@ class _Severity4PauseAlertState extends ConsumerState<Severity4PauseAlert>
           ),
         ),
       ),
+    );
+  }
+}
+
+class _AlertSpriteAccent extends StatelessWidget {
+  const _AlertSpriteAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        const _AlertSprite(
+          asset: 'assets/sprites/block_question_f0.png',
+          width: 42,
+          height: 42,
+        ),
+        SizedBox(width: 12.w),
+        Transform.translate(
+          offset: Offset(0, -18.h),
+          child: const _AlertSprite(
+            asset: 'assets/sprites/coin_f0.png',
+            width: 32,
+            height: 44.8,
+          ),
+        ),
+        SizedBox(width: 12.w),
+        const _AlertSprite(
+          asset: 'assets/sprites/block_brick.png',
+          width: 42,
+          height: 42,
+        ),
+      ],
+    );
+  }
+}
+
+class _AlertBody extends StatelessWidget {
+  const _AlertBody({required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = AppPalette.of(context);
+
+    return Container(
+      constraints: BoxConstraints(maxWidth: 680.w),
+      padding: EdgeInsets.symmetric(horizontal: 28.w, vertical: 16.h),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.72),
+        border: Border.all(color: p.dialogBorder, width: 3),
+        borderRadius: BorderRadius.circular(6.r),
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 24.sp,
+          fontWeight: FontWeight.w800,
+          height: 1.25,
+          letterSpacing: 1.5,
+        ),
+      ),
+    );
+  }
+}
+
+class _AlertSprite extends StatelessWidget {
+  const _AlertSprite({
+    required this.asset,
+    required this.width,
+    required this.height,
+  });
+
+  final String asset;
+  final double width;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      asset,
+      width: width.w,
+      height: height.h,
+      filterQuality: FilterQuality.none,
+      gaplessPlayback: true,
+      fit: BoxFit.contain,
     );
   }
 }

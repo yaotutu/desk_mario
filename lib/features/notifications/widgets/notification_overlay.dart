@@ -52,7 +52,9 @@ class NotificationOverlay extends ConsumerWidget {
       key: ValueKey('notif-${current.id ?? current.severity.index}'),
       fit: StackFit.expand,
       children: [
-        if (creativeMode == CreativeMode.theater) const _TheaterStageAccent(),
+        if (creativeMode == CreativeMode.theater &&
+            current.severity != NotificationSeverity.severity4)
+          const _TheaterStageAccent(),
         _buildBySeverity(current.severity, current.displayText),
       ],
     );
@@ -67,7 +69,7 @@ class NotificationOverlay extends ConsumerWidget {
       case NotificationSeverity.severity3:
         return Severity3TypewriterDialog(text: text);
       case NotificationSeverity.severity4:
-        return const Severity4PauseAlert();
+        return Severity4PauseAlert(text: text);
     }
   }
 }
