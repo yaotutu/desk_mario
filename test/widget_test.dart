@@ -14,6 +14,8 @@ import 'package:desk_mario/features/creative_mode/providers/creative_mode_provid
 import 'package:desk_mario/features/creative_mode/widgets/mode_switcher.dart';
 import 'package:desk_mario/features/hud/providers/clock_provider.dart';
 import 'package:desk_mario/features/hud/widgets/time_hud.dart';
+import 'package:desk_mario/features/notifications/models/notification_severity.dart';
+import 'package:desk_mario/features/notifications/providers/notification_queue_provider.dart';
 import 'package:desk_mario/features/weather/providers/weather_provider.dart';
 import 'package:desk_mario/shared/widgets/atmospheric_layer.dart';
 
@@ -72,6 +74,13 @@ List<String> _assetNamesUnder(WidgetTester tester, Finder root) {
       .whereType<AssetImage>()
       .map((provider) => provider.assetName)
       .toList();
+}
+
+int _assetCountUnder(WidgetTester tester, Finder root, String assetName) {
+  return _assetNamesUnder(
+    tester,
+    root,
+  ).where((candidate) => candidate == assetName).length;
 }
 
 void main() {
@@ -298,6 +307,46 @@ void main() {
         matching: find.byType(DecoratedBox),
       ),
       findsNothing,
+    );
+  });
+
+  testWidgets('Diorama message prop visualizes pending count as coins', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(DesignSize.width, DesignSize.height),
+        minTextAdapt: true,
+        builder: (context, child) => ProviderScope(
+          overrides: [
+            creativeModeProvider.overrideWith((ref) {
+              return CreativeModeNotifier()
+                ..setManualMode(CreativeMode.diorama);
+            }),
+            notificationQueueProvider.overrideWith((ref) {
+              return NotificationQueueNotifier()
+                ..enqueueSeverity(NotificationSeverity.severity1)
+                ..enqueueSeverity(NotificationSeverity.severity1)
+                ..enqueueSeverity(NotificationSeverity.severity1);
+            }),
+          ],
+          child: const DeskMarioApp(),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final messageFlag = find.byKey(_dioramaMessageFlagKey);
+    expect(messageFlag, findsOneWidget);
+    expect(find.text('x03'), findsWidgets);
+    expect(
+      _assetCountUnder(tester, messageFlag, 'assets/sprites/coin_f0.png'),
+      3,
     );
   });
 }

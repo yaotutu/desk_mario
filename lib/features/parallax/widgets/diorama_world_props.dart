@@ -57,7 +57,11 @@ class DioramaWorldProps extends ConsumerWidget {
                   scale: scale,
                 ),
                 SizedBox(width: 30.w),
-                _FlagMessageProp(label: pendingLabel, scale: scale),
+                _FlagMessageProp(
+                  label: pendingLabel,
+                  pendingCount: pendingCount,
+                  scale: scale,
+                ),
               ],
             ),
           ),
@@ -154,13 +158,20 @@ class _WeatherBlockProp extends StatelessWidget {
 }
 
 class _FlagMessageProp extends StatelessWidget {
-  const _FlagMessageProp({required this.label, required this.scale});
+  const _FlagMessageProp({
+    required this.label,
+    required this.pendingCount,
+    required this.scale,
+  });
 
   final String label;
+  final int pendingCount;
   final double scale;
 
   @override
   Widget build(BuildContext context) {
+    final coinCount = pendingCount == 0 ? 1 : pendingCount.clamp(1, 4);
+
     return SizedBox(
       key: DioramaWorldProps.messageFlagKey,
       width: 112 * scale,
@@ -185,17 +196,43 @@ class _FlagMessageProp extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _Sprite(
-                  asset: 'assets/sprites/coin_f0.png',
-                  width: 40,
-                  height: 56,
-                  scale: scale,
-                ),
+                _CoinStack(count: coinCount, scale: scale),
                 SizedBox(height: 6 * scale),
                 _WorldPixelText(text: label, fontSize: 9),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CoinStack extends StatelessWidget {
+  const _CoinStack({required this.count, required this.scale});
+
+  final int count;
+  final double scale;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 68 * scale,
+      height: (56 + (count - 1) * 18) * scale,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          for (int i = 0; i < count; i++)
+            Positioned(
+              left: (i.isOdd ? 16 : 0) * scale,
+              bottom: i * 18 * scale,
+              child: _Sprite(
+                asset: 'assets/sprites/coin_f0.png',
+                width: 40,
+                height: 56,
+                scale: scale,
+              ),
+            ),
         ],
       ),
     );

@@ -11,7 +11,8 @@ AGENTS.md 主文件只列了简版速查，这里是详细描述 + 状态。
 v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character / HUD / Notification / System）全部接入 `LayeredScaffold`。
 - HUD、Notification、Debug 已可见可用
 - Atmosphere 色温覆盖 + 暗角已生效
-- Weather 占位（未接真实天气）
+- Weather 已接 `weatherProvider`，当前用真实 SMB sprite cue 表达天气状态
+- Diorama 数据摆件已在 L0 世界层展示天气、时间、通知；通知数用金币堆叠辅助表达
 
 ---
 
@@ -22,6 +23,11 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 **候选**：电量百分比 / Wi-Fi 信号 / 未读通知数 / 番茄钟倒计时 / 当前天气图标。
 
 **层级**：L3 HUD（注意与 L4 Notification 区分——HUD 是常驻信息，Notification 是临时提醒）。
+
+**Diorama 状态**：Diorama 模式不显示顶部 HUD，而是把数据挂到世界物件：
+- 天气：云朵 + 砖块组合
+- 时间：城堡 + HH:MM + 昼夜相位
+- 通知：旗杆 + 金币堆叠；0 条保留 1 枚金币作为摆件锚点，1-4 条显示对应金币数，4 条以上封顶并保留 `xNN` 文本辅助读数
 
 ---
 
