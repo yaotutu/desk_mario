@@ -68,24 +68,10 @@ class _ClearCue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       key: WeatherLayer.clearCueKey,
-      left: 88.w,
-      top: 92.h,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const _WeatherSprite(
-            asset: 'assets/sprites/starman_f0.png',
-            width: 34,
-            height: 34,
-          ),
-          SizedBox(width: 8.w),
-          const _WeatherSprite(
-            asset: 'assets/sprites/coin_f0.png',
-            width: 18,
-            height: 25.2,
-          ),
-        ],
+      left: 56.w,
+      bottom: 108.h,
+      child: const _WeatherPipeStation(
+        accent: _ClearStationAccent(),
       ),
     );
   }
@@ -98,26 +84,10 @@ class _RainCue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       key: WeatherLayer.rainCueKey,
-      left: 76.w,
-      top: 108.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const _WeatherSprite(
-            asset: 'assets/sprites/cloud_small.png',
-            width: 118,
-            height: 50.6,
-          ),
-          Positioned(
-            left: 92.w,
-            top: 31.h,
-            child: const _WeatherSprite(
-              asset: 'assets/sprites/cloud_small.png',
-              width: 72,
-              height: 30.9,
-            ),
-          ),
-        ],
+      left: 56.w,
+      bottom: 108.h,
+      child: const _WeatherPipeStation(
+        accent: _RainStationAccent(),
       ),
     );
   }
@@ -130,35 +100,10 @@ class _SnowCue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       key: WeatherLayer.snowCueKey,
-      left: 86.w,
-      top: 104.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          const _WeatherSprite(
-            asset: 'assets/sprites/cloud_small.png',
-            width: 116,
-            height: 49.7,
-          ),
-          Positioned(
-            left: 26.w,
-            top: 48.h,
-            child: const _WeatherSprite(
-              asset: 'assets/sprites/starman_f0.png',
-              width: 18,
-              height: 18,
-            ),
-          ),
-          Positioned(
-            left: 72.w,
-            top: 64.h,
-            child: const _WeatherSprite(
-              asset: 'assets/sprites/starman_f0.png',
-              width: 14,
-              height: 14,
-            ),
-          ),
-        ],
+      left: 56.w,
+      bottom: 108.h,
+      child: const _WeatherPipeStation(
+        accent: _SnowStationAccent(),
       ),
     );
   }
@@ -171,36 +116,10 @@ class _FogCue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       key: WeatherLayer.fogCueKey,
-      left: 58.w,
-      top: 118.h,
-      child: Opacity(
-        opacity: 0.72,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const _WeatherSprite(
-              asset: 'assets/sprites/cloud_small.png',
-              width: 88,
-              height: 37.7,
-            ),
-            Transform.translate(
-              offset: Offset(-18.w, 12.h),
-              child: const _WeatherSprite(
-                asset: 'assets/sprites/cloud_small.png',
-                width: 112,
-                height: 48,
-              ),
-            ),
-            Transform.translate(
-              offset: Offset(-36.w, 2.h),
-              child: const _WeatherSprite(
-                asset: 'assets/sprites/cloud_small.png',
-                width: 78,
-                height: 33.4,
-              ),
-            ),
-          ],
-        ),
+      left: 56.w,
+      bottom: 108.h,
+      child: const _WeatherPipeStation(
+        accent: _FogStationAccent(),
       ),
     );
   }
@@ -213,45 +132,223 @@ class _StormCue extends StatelessWidget {
   Widget build(BuildContext context) {
     return Positioned(
       key: WeatherLayer.stormCueKey,
-      left: 78.w,
-      top: 94.h,
+      left: 56.w,
+      bottom: 108.h,
+      child: const _WeatherPipeStation(
+        accent: _StormStationAccent(),
+      ),
+    );
+  }
+}
+
+class _WeatherPipeStation extends StatelessWidget {
+  const _WeatherPipeStation({required this.accent});
+
+  final Widget accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 190.w,
+      height: 210.h,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Positioned(
+            left: 32.w,
+            bottom: 0,
+            child: const _WeatherSprite(
+              asset: 'assets/sprites/pipe_tall.png',
+              width: 88,
+              height: 117.3,
+            ),
+          ),
+          Positioned(left: 0, top: 0, child: accent),
+        ],
+      ),
+    );
+  }
+}
+
+class _ClearStationAccent extends StatelessWidget {
+  const _ClearStationAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const _WeatherSprite(
+          asset: 'assets/sprites/starman_f0.png',
+          width: 34,
+          height: 34,
+        ),
+        Positioned(
+          left: 42.w,
+          top: 28.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/coin_f0.png',
+            width: 18,
+            height: 25.2,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _RainStationAccent extends StatelessWidget {
+  const _RainStationAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const _WeatherSprite(
+          asset: 'assets/sprites/cloud_small.png',
+          width: 96,
+          height: 41.1,
+        ),
+        Positioned(
+          left: 18.w,
+          top: 45.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/coin_f0.png',
+            width: 16,
+            height: 22.4,
+          ),
+        ),
+        Positioned(
+          left: 58.w,
+          top: 62.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/coin_f0.png',
+            width: 14,
+            height: 19.6,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _SnowStationAccent extends StatelessWidget {
+  const _SnowStationAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const _WeatherSprite(
+          asset: 'assets/sprites/cloud_small.png',
+          width: 92,
+          height: 39.4,
+        ),
+        Positioned(
+          left: 16.w,
+          top: 48.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/starman_f0.png',
+            width: 17,
+            height: 17,
+          ),
+        ),
+        Positioned(
+          left: 62.w,
+          top: 68.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/starman_f0.png',
+            width: 13,
+            height: 13,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FogStationAccent extends StatelessWidget {
+  const _FogStationAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Opacity(
+      opacity: 0.72,
       child: Stack(
         clipBehavior: Clip.none,
         children: [
           const _WeatherSprite(
             asset: 'assets/sprites/cloud_small.png',
-            width: 126,
-            height: 54,
+            width: 92,
+            height: 39.4,
           ),
           Positioned(
-            left: 22.w,
-            top: 54.h,
+            left: 42.w,
+            top: 30.h,
             child: const _WeatherSprite(
-              asset: 'assets/sprites/block_question_f0.png',
-              width: 30,
-              height: 30,
+              asset: 'assets/sprites/cloud_small.png',
+              width: 82,
+              height: 35.1,
             ),
           ),
           Positioned(
-            left: 62.w,
-            top: 38.h,
+            left: -16.w,
+            top: 62.h,
             child: const _WeatherSprite(
-              asset: 'assets/sprites/coin_f0.png',
-              width: 22,
-              height: 30.8,
-            ),
-          ),
-          Positioned(
-            left: 96.w,
-            top: 54.h,
-            child: const _WeatherSprite(
-              asset: 'assets/sprites/block_question_f1.png',
-              width: 30,
-              height: 30,
+              asset: 'assets/sprites/cloud_small.png',
+              width: 104,
+              height: 44.6,
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _StormStationAccent extends StatelessWidget {
+  const _StormStationAccent();
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        const _WeatherSprite(
+          asset: 'assets/sprites/cloud_small.png',
+          width: 100,
+          height: 42.9,
+        ),
+        Positioned(
+          left: 14.w,
+          top: 54.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/block_question_f0.png',
+            width: 28,
+            height: 28,
+          ),
+        ),
+        Positioned(
+          left: 52.w,
+          top: 42.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/coin_f0.png',
+            width: 20,
+            height: 28,
+          ),
+        ),
+        Positioned(
+          left: 84.w,
+          top: 54.h,
+          child: const _WeatherSprite(
+            asset: 'assets/sprites/block_question_f1.png',
+            width: 28,
+            height: 28,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -150,6 +150,7 @@ void main() {
         container.read(worldStateLoopProvider).timePhase,
         WorldTimePhase.night,
       );
+      expect(find.text('23:00'), findsWidgets);
 
       await tester.tap(find.text('AUTO'));
       await tester.pump(const Duration(milliseconds: 400));
@@ -158,6 +159,7 @@ void main() {
         container.read(worldStateLoopProvider).timePhase,
         WorldTimePhase.day,
       );
+      expect(find.text('12:00'), findsWidgets);
 
       await tester.pumpWidget(const SizedBox.shrink());
       container.dispose();

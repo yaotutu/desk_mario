@@ -12,6 +12,7 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 - HUD、Notification、Debug 已可见可用
 - Atmosphere 色温覆盖 + 暗角已生效
 - Weather 已接 `weatherProvider`，当前用真实 SMB sprite cue 表达天气状态
+- Time 已接天空相位 cue，morning/day/dusk/night 会用真实 SMB sprite 在天空提示
 - Diorama 数据摆件已在 L0 世界层展示天气、时间、通知；通知数用金币堆叠辅助表达
 
 ---
@@ -28,6 +29,12 @@ v2 重构完成：6 层视差栈（Atmosphere / Background / Weather / Character
 - 天气：云朵 + 砖块组合
 - 时间：城堡 + HH:MM + 昼夜相位
 - 通知：旗杆 + 金币堆叠；0 条保留 1 枚金币作为摆件锚点，1-4 条显示对应金币数，4 条以上封顶并保留 `xNN` 文本辅助读数
+
+**Scene 状态**：Scene/Theater/Diorama 都会渲染 `TimeSkyCue`：
+- morning：低位 starman + coin，表达晨光刚升起
+- day：高位 starman + coin，表达白天强光
+- dusk：coin 落在 brick 地平线之间，表达黄昏下沉
+- night：小 starman 组，表达夜空
 
 ---
 

@@ -19,6 +19,7 @@
 | `assets/sprites/mario_big_run_f{0,1,2}.png` | Mario 跑步 3 帧 | 16×32 NES 原版 | 64×128（scale=4）| frame interval 120ms |
 | `assets/sprites/mario_big_stand.png` | Mario 站立 | 16×32 NES 原版 | 64×128（scale=4）| 静态摆件用 |
 | `assets/sprites/cloud_small.png` | 后续天气/场景云朵素材 | 42×18 | 按需等比放大 | 从 `smb_world_minus1.png` source rect `(56,43,42,18)` 裁出，sheet 天空色转透明 |
+| `assets/sprites/pipe_tall.png` | 天气/数据 dock 管道物件 | 96×128 | 按需等比放大 | 从 `smb_world_minus1.png` source rect `(398,80,96,128)` 裁出，sheet 天空色转透明 |
 | `assets/sprites/flagpole.png` | 后续进度/专注标记 | 24×178 | 按需等比放大 | 从 `smb_world_minus1.png` source rect `(2427,30,24,178)` 裁出，sheet 天空色转透明 |
 | `assets/sprites/castle.png` | 后续长期状态/终点物件 | 86×178 | 按需等比放大 | 从 `smb_world_minus1.png` source rect `(2520,30,86,178)` 裁出，sheet 天空色转透明 |
 | `assets/fonts/PressStart2P-Regular.ttf` | 像素字体（family: `PixelFont`）| — | — | HUD 时间、PAUSE 等英文/数字 |
@@ -55,7 +56,7 @@ python3 tools/process_panel1.py <in.png> <out.png>
 python3 tools/extract_stage_sprites.py
 ```
 
-当前裁出的 `cloud_small.png` / `flagpole.png` / `castle.png` 均来自
+当前裁出的 `cloud_small.png` / `pipe_tall.png` / `flagpole.png` / `castle.png` 均来自
 `assets/backgrounds/smb_world_minus1.png`。脚本只做矩形裁剪 + exact sheet
 天空色 alpha 透明化，不重绘 sprite 像素。
 

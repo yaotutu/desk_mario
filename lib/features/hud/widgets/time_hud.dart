@@ -26,17 +26,21 @@ class TimeHud extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final now = ref.watch(clockProvider);
     final world = ref.watch(worldStateLoopProvider);
+    final overrideTimePhase = ref.watch(worldTimePhaseOverrideProvider);
     if (world.dioramaDensity == DioramaDensity.inspectable) {
       return const IgnorePointer(child: SizedBox.shrink());
     }
 
+    final displayTime = overrideTimePhase == null
+        ? now
+        : _debugDisplayTimeForPhase(now, overrideTimePhase);
     final weather = world.weather;
     final queueState = ref.watch(notificationQueueProvider);
     final pendingCount =
         queueState.queue.length + (queueState.current == null ? 0 : 1);
 
-    final hh = now.hour.toString().padLeft(2, '0');
-    final mm = now.minute.toString().padLeft(2, '0');
+    final hh = displayTime.hour.toString().padLeft(2, '0');
+    final mm = displayTime.minute.toString().padLeft(2, '0');
     final timeText = '$hh:$mm';
     final pendingLabel = 'x${pendingCount.toString().padLeft(2, '0')}';
 
@@ -91,6 +95,17 @@ class TimeHud extends ConsumerWidget {
       ),
     );
   }
+}
+
+DateTime _debugDisplayTimeForPhase(DateTime now, WorldTimePhase phase) {
+  final hour = switch (phase) {
+    WorldTimePhase.morning => 6,
+    WorldTimePhase.day => 12,
+    WorldTimePhase.dusk => 18,
+    WorldTimePhase.night => 23,
+  };
+
+  return DateTime(now.year, now.month, now.day, hour);
 }
 
 class _HudColumn extends StatelessWidget {

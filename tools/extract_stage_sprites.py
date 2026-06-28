@@ -15,6 +15,7 @@ OUT_DIR = Path("assets/sprites")
 
 SPRITES = {
     "cloud_small.png": (56, 43, 42, 18),
+    "pipe_tall.png": (398, 80, 96, 128),
     "flagpole.png": (2427, 30, 24, 178),
     "castle.png": (2520, 30, 86, 178),
 }

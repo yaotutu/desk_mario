@@ -10,6 +10,7 @@ import '../../features/hud/widgets/time_hud.dart';
 import '../../features/notifications/providers/background_dim_provider.dart';
 import '../../features/notifications/widgets/notification_overlay.dart';
 import '../../features/weather/widgets/weather_layer.dart';
+import '../../features/world_state/widgets/time_sky_cue.dart';
 import '../../features/parallax/widgets/scrolling_world.dart';
 import 'atmospheric_layer.dart';
 
@@ -21,7 +22,7 @@ import 'atmospheric_layer.dart';
 /// |--------|----------------------|-------------------------------------------|
 /// | L-1    | [AtmosphericLayer]   | 全屏氛围：色温（昼夜）+ 边缘暗角            |
 /// | L0     | [ScrollingWorld]     | 视差背景 + 地面砖块（共享滚动/尺寸）         |
-/// | L1     | [WeatherLayer]       | 天气效果：雨/雪/雾/闪电（widget 内部分前后） |
+/// | L1     | [WeatherLayer]/[TimeSkyCue] | 天气/时间天空提示（真实 sprite cue） |
 /// | L2     | [PositionedMario]    | 主角 Mario（独立原地跑步 + 上下浮动）        |
 /// | L3     | [TimeHud]            | 世界内 UI：顶部时间 HH:MM                   |
 /// | L4     | [NotificationOverlay]| 业务消息：4 级弱提醒（L1~L4）               |
@@ -68,6 +69,9 @@ class LayeredScaffold extends ConsumerWidget {
 
           // L1 Weather（天气效果占位）
           const WeatherLayer(),
+
+          // L1 Time（天空中的昼夜相位物件）
+          const TimeSkyCue(),
 
           // L2 Character（主角）
           const PositionedMario(),

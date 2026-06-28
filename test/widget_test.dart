@@ -29,20 +29,49 @@ const _oldHudDioramaPropsKey = ValueKey<String>('world-hud-diorama-props');
 const _weatherCueExpectations = <WeatherCondition, List<String>>{
   WeatherCondition.clear: [
     'weather-cue-clear',
+    'assets/sprites/pipe_tall.png',
     'assets/sprites/starman_f0.png',
   ],
-  WeatherCondition.rain: ['weather-cue-rain', 'assets/sprites/cloud_small.png'],
+  WeatherCondition.rain: [
+    'weather-cue-rain',
+    'assets/sprites/pipe_tall.png',
+    'assets/sprites/cloud_small.png',
+  ],
   WeatherCondition.snow: [
     'weather-cue-snow',
+    'assets/sprites/pipe_tall.png',
     'assets/sprites/cloud_small.png',
     'assets/sprites/starman_f0.png',
   ],
-  WeatherCondition.fog: ['weather-cue-fog', 'assets/sprites/cloud_small.png'],
+  WeatherCondition.fog: [
+    'weather-cue-fog',
+    'assets/sprites/pipe_tall.png',
+    'assets/sprites/cloud_small.png',
+  ],
   WeatherCondition.storm: [
     'weather-cue-storm',
+    'assets/sprites/pipe_tall.png',
     'assets/sprites/block_question_f0.png',
     'assets/sprites/coin_f0.png',
   ],
+};
+final _timeCueExpectations = <DateTime, List<String>>{
+  DateTime(2026, 1, 1, 6): [
+    'time-cue-morning',
+    'assets/sprites/starman_f0.png',
+    'assets/sprites/coin_f0.png',
+  ],
+  DateTime(2026, 1, 1, 12): [
+    'time-cue-day',
+    'assets/sprites/starman_f0.png',
+    'assets/sprites/coin_f0.png',
+  ],
+  DateTime(2026, 1, 1, 18): [
+    'time-cue-dusk',
+    'assets/sprites/coin_f0.png',
+    'assets/sprites/block_brick.png',
+  ],
+  DateTime(2026, 1, 1, 23): ['time-cue-night', 'assets/sprites/starman_f0.png'],
 };
 
 Image _assetImageInDiorama(WidgetTester tester, String assetName) {
@@ -194,6 +223,44 @@ void main() {
               weatherProvider.overrideWith(
                 (ref) =>
                     WeatherSnapshot(condition: entry.key, temperatureC: 18),
+              ),
+            ],
+            child: const DeskMarioApp(),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+
+      final cueFinder = find.byKey(cueKey);
+      expect(cueFinder, findsOneWidget);
+      final assetNames = _assetNamesUnder(tester, cueFinder);
+      for (final asset in expectedAssets) {
+        expect(assetNames, contains(asset));
+      }
+    }
+  });
+
+  testWidgets('TimeSkyCue renders real sprite cues for every time phase', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    for (final entry in _timeCueExpectations.entries) {
+      final cueKey = ValueKey<String>(entry.value.first);
+      final expectedAssets = entry.value.skip(1);
+
+      await tester.pumpWidget(
+        ScreenUtilInit(
+          designSize: const Size(DesignSize.width, DesignSize.height),
+          minTextAdapt: true,
+          builder: (context, child) => ProviderScope(
+            key: ValueKey<String>('time-${entry.key.hour}'),
+            overrides: [
+              clockProvider.overrideWith(
+                (ref) => ClockNotifier(initialTime: entry.key, autoTick: false),
               ),
             ],
             child: const DeskMarioApp(),
