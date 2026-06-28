@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'diorama_world_props.dart';
 import 'ground_layer.dart';
 import 'parallax_background.dart';
 
@@ -92,16 +93,22 @@ class _ScrollingWorldState extends ConsumerState<ScrollingWorld>
               child: SizedBox(
                 width: width,
                 height: height,
-                child: ClipRect(
-                  child: Transform.translate(
-                    offset: Offset(shift, 0),
-                    child: Stack(
-                      // loose 让 ParallaxBackground (4616×529) 和 GroundLayer
-                      // (33*tileWidth × groundHeight) 保持自己的尺寸不被拉伸，
-                      // 超出 totalWidth 的部分由外层 ClipRect 裁掉。
-                      children: const [ParallaxBackground(), GroundLayer()],
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ClipRect(
+                      child: Transform.translate(
+                        offset: Offset(shift, 0),
+                        child: Stack(
+                          // loose 让 ParallaxBackground (4616×529) 和 GroundLayer
+                          // (33*tileWidth × groundHeight) 保持自己的尺寸不被拉伸，
+                          // 超出 totalWidth 的部分由外层 ClipRect 裁掉。
+                          children: const [ParallaxBackground(), GroundLayer()],
+                        ),
+                      ),
                     ),
-                  ),
+                    const DioramaWorldProps(),
+                  ],
                 ),
               ),
             );

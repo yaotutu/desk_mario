@@ -17,11 +17,19 @@ import 'package:desk_mario/features/hud/widgets/time_hud.dart';
 import 'package:desk_mario/features/weather/providers/weather_provider.dart';
 import 'package:desk_mario/shared/widgets/atmospheric_layer.dart';
 
+const _dioramaWorldPropsKey = ValueKey<String>('diorama-world-props');
+const _dioramaWeatherBlocksKey = ValueKey<String>(
+  'diorama-world-weather-blocks',
+);
+const _dioramaMessageFlagKey = ValueKey<String>('diorama-world-message-flag');
+const _dioramaTimeCastleKey = ValueKey<String>('diorama-world-time-castle');
+const _oldHudDioramaPropsKey = ValueKey<String>('world-hud-diorama-props');
+
 Image _assetImageInDiorama(WidgetTester tester, String assetName) {
   return tester
       .widgetList<Image>(
         find.descendant(
-          of: find.byKey(TimeHud.dioramaPropsKey),
+          of: find.byKey(_dioramaWorldPropsKey),
           matching: find.byType(Image),
         ),
       )
@@ -76,6 +84,30 @@ void main() {
     expect(find.byIcon(Icons.settings), findsOneWidget);
   });
 
+  testWidgets('top HUD keeps the left background cloud readable', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize =
+        const Size(DesignSize.width, DesignSize.height) * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(tester.view.resetPhysicalSize);
+
+    await tester.pumpWidget(
+      ScreenUtilInit(
+        designSize: const Size(DesignSize.width, DesignSize.height),
+        minTextAdapt: true,
+        builder: (context, child) => const ProviderScope(child: DeskMarioApp()),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(
+      tester.getTopLeft(find.byKey(TimeHud.weatherKey)).dx,
+      greaterThan(260),
+      reason: 'weather HUD should not sit over the left SMB cloud cluster',
+    );
+  });
+
   testWidgets('HUD does not paint a full-width background mask', (
     WidgetTester tester,
   ) async {
@@ -102,7 +134,7 @@ void main() {
     );
   });
 
-  testWidgets('Diorama mode renders real prop-backed HUD objects', (
+  testWidgets('Diorama mode renders real prop-backed world objects', (
     WidgetTester tester,
   ) async {
     tester.view.physicalSize =
@@ -139,17 +171,22 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.byKey(TimeHud.dioramaPropsKey), findsOneWidget);
-    expect(find.byKey(TimeHud.dioramaWeatherBlockKey), findsOneWidget);
-    expect(find.byKey(TimeHud.dioramaMessageFlagKey), findsOneWidget);
-    expect(find.byKey(TimeHud.dioramaTimeCastleKey), findsOneWidget);
+    expect(find.byKey(_oldHudDioramaPropsKey), findsNothing);
+    expect(find.byKey(_dioramaWorldPropsKey), findsOneWidget);
+    expect(find.byKey(_dioramaWeatherBlocksKey), findsOneWidget);
+    expect(find.byKey(_dioramaMessageFlagKey), findsOneWidget);
+    expect(find.byKey(_dioramaTimeCastleKey), findsOneWidget);
+    expect(find.byKey(TimeHud.clockKey), findsNothing);
+    expect(find.byKey(TimeHud.weatherKey), findsNothing);
+    expect(find.byKey(TimeHud.statusKey), findsNothing);
+    expect(find.text('23:05'), findsWidgets);
     expect(find.text('NIGHT'), findsWidgets);
     expect(find.text('SNOW -2C'), findsWidgets);
 
     final weatherBlocks = tester
         .widgetList<Image>(
           find.descendant(
-            of: find.byKey(TimeHud.dioramaWeatherBlockKey),
+            of: find.byKey(_dioramaWeatherBlocksKey),
             matching: find.byType(Image),
           ),
         )
@@ -162,16 +199,18 @@ void main() {
         });
     expect(weatherBlocks.length, greaterThanOrEqualTo(3));
     expect(
-      tester.widgetList<Image>(
-        find.descendant(
-          of: find.byKey(TimeHud.dioramaPropsKey),
-          matching: find.byType(Image),
-        ),
-      ).any((image) {
-        final provider = image.image;
-        return provider is AssetImage &&
-            provider.assetName == 'assets/sprites/pipe_tall.png';
-      }),
+      tester
+          .widgetList<Image>(
+            find.descendant(
+              of: find.byKey(_dioramaWorldPropsKey),
+              matching: find.byType(Image),
+            ),
+          )
+          .any((image) {
+            final provider = image.image;
+            return provider is AssetImage &&
+                provider.assetName == 'assets/sprites/pipe_tall.png';
+          }),
       isFalse,
     );
 

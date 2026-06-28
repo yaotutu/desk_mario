@@ -23,7 +23,6 @@ const _goldenImageAssets = [
   'assets/sprites/block_question_f0.png',
   'assets/sprites/block_question_f1.png',
   'assets/sprites/block_brick.png',
-  'assets/sprites/pipe_tall.png',
   'assets/sprites/flagpole.png',
   'assets/sprites/castle.png',
 ];

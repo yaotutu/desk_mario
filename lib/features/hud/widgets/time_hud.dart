@@ -21,24 +21,15 @@ class TimeHud extends ConsumerWidget {
   static const statusKey = ValueKey<String>('world-hud-status');
   static const weatherObjectKey = ValueKey<String>('world-hud-weather-object');
   static const statusObjectKey = ValueKey<String>('world-hud-status-object');
-  static const dioramaPropsKey = ValueKey<String>('world-hud-diorama-props');
-  static const dioramaWeatherPipeKey = ValueKey<String>(
-    'world-hud-diorama-weather-pipe',
-  );
-  static const dioramaWeatherBlockKey = ValueKey<String>(
-    'world-hud-diorama-weather-block',
-  );
-  static const dioramaMessageFlagKey = ValueKey<String>(
-    'world-hud-diorama-message-flag',
-  );
-  static const dioramaTimeCastleKey = ValueKey<String>(
-    'world-hud-diorama-time-castle',
-  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final now = ref.watch(clockProvider);
     final world = ref.watch(worldStateLoopProvider);
+    if (world.dioramaDensity == DioramaDensity.inspectable) {
+      return const IgnorePointer(child: SizedBox.shrink());
+    }
+
     final weather = world.weather;
     final queueState = ref.watch(notificationQueueProvider);
     final pendingCount =
@@ -53,62 +44,49 @@ class TimeHud extends ConsumerWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Align(
-            alignment: Alignment.topCenter,
-            child: Padding(
-              padding: EdgeInsets.only(left: 44.w, top: 12.h, right: 44.w),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    width: 260.w,
-                    child: _HudColumn(
-                      key: weatherKey,
-                      title: 'WEATHER',
-                      alignment: CrossAxisAlignment.start,
-                      value: _WeatherObjectHud(
-                        objectKey: weatherObjectKey,
-                        label: weather.displayText,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: Semantics(
-                        key: clockKey,
-                        container: true,
-                        label: '当前时间 $timeText',
-                        child: _ClockHud(label: timeText),
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 260.w,
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: _HudColumn(
-                        key: statusKey,
-                        title: 'MSG',
-                        alignment: CrossAxisAlignment.end,
-                        value: _StatusObjectHud(
-                          objectKey: statusObjectKey,
-                          label: pendingLabel,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+          Positioned(
+            left: 300.w,
+            top: 12.h,
+            width: 240.w,
+            child: _HudColumn(
+              key: weatherKey,
+              title: 'WEATHER',
+              alignment: CrossAxisAlignment.start,
+              value: _WeatherObjectHud(
+                objectKey: weatherObjectKey,
+                label: weather.displayText,
               ),
             ),
           ),
-
-          if (world.dioramaDensity == DioramaDensity.inspectable)
-            _DioramaDataProps(
-              weatherLabel: weather.displayText,
-              messageLabel: pendingLabel,
-              timeLabel: world.timePhase.label,
+          Align(
+            alignment: Alignment.topCenter,
+            child: Padding(
+              padding: EdgeInsets.only(top: 12.h),
+              child: Semantics(
+                key: clockKey,
+                container: true,
+                label: '当前时间 $timeText',
+                child: _ClockHud(label: timeText),
+              ),
             ),
+          ),
+          Positioned(
+            right: 44.w,
+            top: 12.h,
+            width: 240.w,
+            child: Align(
+              alignment: Alignment.topRight,
+              child: _HudColumn(
+                key: statusKey,
+                title: 'MSG',
+                alignment: CrossAxisAlignment.end,
+                value: _StatusObjectHud(
+                  objectKey: statusObjectKey,
+                  label: pendingLabel,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -215,236 +193,6 @@ class _StatusObjectHud extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// Diorama 模式的数据道具组。
-///
-/// 只使用已经提取的真实 SMB raster 资产：管道承载天气，旗杆+金币承载
-/// 消息数。它靠近地面但避开 Mario 的三分之一屏幕锚点，让信息像关卡
-/// 道具一样长在世界里，而不是盖住云层的 App 卡片。
-class _DioramaDataProps extends StatelessWidget {
-  const _DioramaDataProps({
-    required this.weatherLabel,
-    required this.messageLabel,
-    required this.timeLabel,
-  });
-
-  final String weatherLabel;
-  final String messageLabel;
-  final String timeLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      key: TimeHud.dioramaPropsKey,
-      fit: StackFit.expand,
-      children: [
-        Positioned(
-          left: 48.w,
-          bottom: 70.h,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _WeatherBlockProp(label: weatherLabel),
-              SizedBox(width: 28.w),
-              _FlagMessageProp(label: messageLabel),
-            ],
-          ),
-        ),
-        Positioned(
-          right: 190.w,
-          bottom: 70.h,
-          child: _TimeCastleProp(label: timeLabel),
-        ),
-      ],
-    );
-  }
-}
-
-class _WeatherBlockProp extends StatelessWidget {
-  const _WeatherBlockProp({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      key: TimeHud.dioramaWeatherBlockKey,
-      width: 156.w,
-      height: 178.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          Positioned(
-            bottom: 142.h,
-            child: _OutlinedPixelText(text: label, fontSize: 10),
-          ),
-          Positioned(
-            bottom: 108.h,
-            child: Image.asset(
-              'assets/sprites/cloud_small.png',
-              width: 98.w,
-              height: 42.h,
-              filterQuality: FilterQuality.none,
-              gaplessPlayback: true,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            bottom: 0.h,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    _DioramaSprite(
-                      asset: 'assets/sprites/block_question_f0.png',
-                      width: 42,
-                      height: 42,
-                    ),
-                    _DioramaSprite(
-                      asset: 'assets/sprites/block_brick.png',
-                      width: 42,
-                      height: 42,
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    _DioramaSprite(
-                      asset: 'assets/sprites/block_brick.png',
-                      width: 42,
-                      height: 42,
-                    ),
-                    _DioramaSprite(
-                      asset: 'assets/sprites/block_brick.png',
-                      width: 42,
-                      height: 42,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FlagMessageProp extends StatelessWidget {
-  const _FlagMessageProp({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      key: TimeHud.dioramaMessageFlagKey,
-      width: 124.w,
-      height: 184.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomLeft,
-        children: [
-          Positioned(
-            left: 62.w,
-            bottom: 0,
-            child: Image.asset(
-              'assets/sprites/flagpole.png',
-              width: 24.w,
-              height: 178.h,
-              filterQuality: FilterQuality.none,
-              gaplessPlayback: true,
-              fit: BoxFit.contain,
-            ),
-          ),
-          Positioned(
-            left: 0,
-            bottom: 22.h,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(
-                  'assets/sprites/coin_f0.png',
-                  width: 40.r,
-                  height: 56.r,
-                  filterQuality: FilterQuality.none,
-                  gaplessPlayback: true,
-                  fit: BoxFit.contain,
-                ),
-                SizedBox(height: 6.h),
-                _OutlinedPixelText(text: label, fontSize: 10),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TimeCastleProp extends StatelessWidget {
-  const _TimeCastleProp({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      key: TimeHud.dioramaTimeCastleKey,
-      width: 136.w,
-      height: 208.h,
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          Positioned(
-            bottom: 180.h,
-            child: _OutlinedPixelText(text: label, fontSize: 10),
-          ),
-          Positioned(
-            bottom: 0,
-            child: Image.asset(
-              'assets/sprites/castle.png',
-              width: 86.w,
-              height: 178.h,
-              filterQuality: FilterQuality.none,
-              gaplessPlayback: true,
-              fit: BoxFit.contain,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DioramaSprite extends StatelessWidget {
-  const _DioramaSprite({
-    required this.asset,
-    required this.width,
-    required this.height,
-  });
-
-  final String asset;
-  final double width;
-  final double height;
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      asset,
-      width: width.w,
-      height: height.h,
-      filterQuality: FilterQuality.none,
-      gaplessPlayback: true,
-      fit: BoxFit.contain,
     );
   }
 }
